@@ -1,0 +1,15 @@
+{
+  "name":"mpc",
+  "version":"1.0.0",
+  "build":{
+    "dir":"docs",
+    "main":"setup.js",
+    "filename":"site/mpc.js",
+    "files":[
+      "deps.json",
+      "toledo-chess.json",
+      "lib.json",
+      "templates.json"
+    ]
+  }
+}

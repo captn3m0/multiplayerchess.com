@@ -1,0 +1,14 @@
+{
+  "type":"session",
+  "fen": "rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2",
+  "players": [{ "id":"sp1", "white":true },{ "id":"sp2", "black":true }],
+  "logs":[
+    { "code":1, "message":"Session Created.", "ts":"1298949777" },
+    { "code":2, "message":"White player connected.", "ts":"1298949787" },
+    { "code":2, "message":"Black player connected.", "ts":"1298949797" },
+    { "code":3, "message":"e4", "ts":1298949797 },
+    { "code":3, "message":"c5", "ts":1298949897 },
+    { "code":3, "message":"0-1", "ts":1298949997 }
+  ],
+  "end":true
+}

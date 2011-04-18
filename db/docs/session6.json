@@ -1,0 +1,9 @@
+{
+  "type":"session",
+  "fen": "5k2/8/8/8/8/8/8/3KN3 w - - 0 1",
+  "logs":[
+    { "code":1, "message":"Session Created.", "ts":"1298949777" },
+    { "code":2, "message":"White player connected.", "ts":"1298949787" }
+  ],
+  "players": [{ "id":"sp7", "white":true }]
+}

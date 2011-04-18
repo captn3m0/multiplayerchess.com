@@ -1,0 +1,11 @@
+{
+  "name":"mpc-lib",
+  "build":{
+    "dir":"../lib",
+    "main":"setup.js",
+    "files":[
+      "*.js",
+      "widgets/*.js"
+    ]
+  }
+}

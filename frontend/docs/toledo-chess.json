@@ -1,0 +1,9 @@
+{
+  "name":"toledo-chess",
+  "build":{
+    "dir":"../deps/toledo-chess",
+    "files":[
+      "toledo-chess.js"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{ 
+  "_id": "_design/list",
+  "views":{
+    "players":{
+      "map":"function(doc){ if(doc.type=='session_player' && !doc.quit){ emit(doc.last_move_ts,{ '_id':doc.session }); } }"
+    },
+    "sessions":{
+      "map":"function(doc){ if(doc.type=='session'){ emit(doc._id,doc); for(var i=-1,len=doc.players.length; ++i<len;){ emit(doc._id,{ '_id':doc.players[i].id }) } } }"
+    }
+  }
+}

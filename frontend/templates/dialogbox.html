@@ -1,0 +1,15 @@
+<div id="dialogbox" class="dialogbox {{ class }}" style="visibility:hidden">
+  <div id="dialogbox-symbol" class="symbol">
+    {{{ symbol }}}
+  </div>
+  <div class="content">
+    <div id="dialogbox-msg" class="msg">
+      {{{ message }}}
+    </div>
+    <div id="dialogbox-buttonset" class="buttons">
+      {{#buttons}}
+        <a class="{{ class }} button" href="{{ link }}">{{ caption }}</a>
+      {{/buttons}}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,10 @@
+Pick a replacement for the pawn reached its eight rank!
+
+<div id="promotion-picker" class="promotionPicker" style="width:{{ containerWidth }}px">
+  {{#pieces}}
+    <div class="piece" data-name="{{.}}" style="width:{{ squareSize }}px; height:{{ squareSize }}px;">
+      <img src="{{ _workingdir_ }}/sets/{{ set }}/{{.}}.png">
+    </div>
+  {{/pieces}}
+  <div class="clean"></div>
+</div>

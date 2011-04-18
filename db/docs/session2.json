@@ -1,0 +1,10 @@
+{
+  "type":"session",
+  "fen": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+  "logs":[
+    { "code":1, "message":"Session Created.", "ts":"1298949777" },
+    { "code":2, "message":"White player connected.", "ts":"1298949787" },
+    { "code":2, "message":"Black player connected.", "ts":"1298949797" }
+  ],
+  "players": [{ "id":"sp3", "white":true },{ "id":"sp4", "black":true }]
+}

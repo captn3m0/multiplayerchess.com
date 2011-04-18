@@ -1,0 +1,10 @@
+<ul id="moves-list">
+  {{#moves}}
+    <li>
+      <span class="it">{{ it }}.</span>
+      <span class="san">{{ white }} {{ black }}</span>
+      <span data-timestamp="{{ ts }}" class="relative date">{{ relativeDate }}</span>
+    </li>
+  {{/moves}}
+  <div class="clean"></div>
+</ul>

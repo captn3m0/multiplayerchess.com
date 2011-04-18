@@ -1,0 +1,10 @@
+{
+  "name":"mpc-templates",
+  "build":{
+    "dir":"../templates",
+    "main":"bundle.js",
+    "files":[
+      "bundle.js"
+    ]
+  }
+}

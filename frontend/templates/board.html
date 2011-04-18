@@ -1,0 +1,15 @@
+<div id="board" class="board">
+  <div id="board-square-table" class="squares">
+    {{#squares}}
+      <div class="rank rank-{{ rank }}">
+        {{#files}}
+          <div class="square" data-file="{{ file }}" data-rank="{{ rank }}">
+            {{#has_piece}}
+              <img src="{{ _workingdir_ }}/sets/{{ set }}/{{ piece }}.png" data-name="{{ piece }}" class="piece">
+            {{/has_piece}}
+          </div>
+        {{/files}}
+      </div>
+    {{/squares}}
+  </div>
+</div>
