@@ -3,15 +3,15 @@ contribute, to file bugs or feature requests at the issue tracker.
 
 First Steps
 ===========
-> mplayer http://tayfabandista.org/player/haydi_barikata.mp3 &
-> git clone https://github.com/azer/multiplayerchess.com.git
-> cd multiplayerchess.com/db
-> ./bootstrap.sh
-> cd ../backend
-> vim config.js
-> cd ../frontend
-> vim lib/config.js
-> ./build
+$ mplayer http://tayfabandista.org/player/haydi_barikata.mp3 &
+$ git clone https://github.com/azer/multiplayerchess.com.git
+$ cd multiplayerchess.com/db
+$ ./bootstrap.sh
+$ cd ../backend
+$ vim config.js
+$ cd ../frontend
+$ vim lib/config.js
+$ ./build
 
 Dependencies
 ============
