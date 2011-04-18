@@ -3,7 +3,7 @@ contribute, to file bugs or feature requests at the issue tracker.
 
 First Steps
 ===========
-> mplayer http://tayfabandista.org/player/haydi_barikata.mp3
+> mplayer http://tayfabandista.org/player/haydi_barikata.mp3 &
 > git clone https://github.com/azer/multiplayerchess.com.git
 > cd multiplayerchess.com/db
 > ./bootstrap.sh
