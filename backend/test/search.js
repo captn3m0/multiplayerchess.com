@@ -1,28 +1,51 @@
 var session = require('../lib/session'),
+    player = require('../lib/player');
     assert = require('assert');
 
-function test_basic(callback){
-  return callback(null,true);
-  session.create({ 'sessionId':'foo', 'spId':'bar' },function(error, ok){
-    if(error){
-      callback(error);
-    }
-    
-    session.get('foo', function(error, doc){
-      
+var players = (function(){
+
+  var p1 = p2 = undefined;
+
+  function create(callback){
+    player.createProfile({ 'name':'foo', 'email':'foo@foo.foo', 'password':'foo' },function(error,p1doc){
       if(error){
-        callback(error);
+        return callback(error);
       }
-      
-      assert.equal(doc.sessionId, 'foo');
-      assert.equal(doc.players.length, 1);
-      assert.equal(doc.players[0].id, 'bar');
-      assert.ok(doc.players[0].white);
 
 
+      player.createProfile({ 'name':'bar', 'email':'bar@bar.bar', 'password':'bar' },function(error, p2doc){
+        if(error){
+          return callback(error);
+        }
+
+        callback(undefined,{ 'p1':p1doc, 'p2':p2doc });
+      });
     });
+  };
 
-  });
+  function get(){
+    return {
+      'p1':p1,
+      'p2':p2
+    }
+  }
+
+  return function(callback){
+    if(!p1){
+      create(function(error, docs){
+        if(error){
+          return callback(error);
+        }
+
+
+      });
+    }
+  }
+
+})();
+
+function test_basic(callback){
+  
 }
 
 module.exports = {
