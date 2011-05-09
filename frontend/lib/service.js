@@ -12,7 +12,7 @@ function query(method,path,params,callback){
   return sendRequest(method,config.SERVICE_URL+'/'+path,params,function(error,resp){
     var response = resp && JSON.parse(resp) || null;
     !error && response.error && ( error = new Error(response.error) ); 
-    serverTime = response.serverTime;
+    !error && ( serverTime = response.serverTime );
     callback(error, response);
   });
 }

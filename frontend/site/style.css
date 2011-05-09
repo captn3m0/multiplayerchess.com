@@ -140,7 +140,7 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 #dialogbox.intro .option:hover { background:#150400; border-color:#220500; }
 #dialogbox.intro .option:active span { border-color:#000201; }
 #dialogbox.intro .option:active { background:#000804; border-color:#001105; }
-#dialogbox.intro .option:hover h3 label { color:#440009; }
+#dialogbox.intro .option:hover h3 label { color:#251400; }
 #dialogbox.intro .buttons { pointer-events:auto; }
 #dialogbox.intro .nickname {  margin:10px 0 0 0; padding:0 color:#eee; background:transparent; color:#fff; border:0; outline:none; font:1em 'Goudy Bookletter 1911', serif;  pointer-events:auto; }
 
@@ -150,6 +150,8 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 #dialogbox.intro .news h2 { margin:20px 0 0 0; }
 #dialogbox.intro .news ul { list-style:lower-greek; padding:2px 20px; margin:0; }
 #dialogbox.intro .news li { margin-bottom:2px; }
+#dialogbox.intro .news a { pointer-events:auto; color:rgb(250,220,150); text-decoration:none; }
+#dialogbox.intro .news a:hover { color:rgb(250,200,150); text-decoration:underline; }
 #dialogbox.intro .news .date { color:#aaa; padding:2px 0; }
 
 

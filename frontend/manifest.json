@@ -8,6 +8,7 @@
     "files":[
       "deps.json",
       "toledo-chess.json",
+      "hlywa-chess.json",
       "lib.json",
       "templates.json"
     ]

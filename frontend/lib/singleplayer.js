@@ -5,7 +5,6 @@ var toledoChess = require('toledo-chess'),
     dialogs;
 
 function counter(move,callback){
-  console.log('counter:',move);
   toledoChess.makeMove(move.from, move.to, function(san){
     callback(moveObject(san.from, san.to));
   });

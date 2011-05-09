@@ -15,6 +15,11 @@ function exists(square){
   return gameplay.context.get(square)&&true||false;
 }
 
+function getPiece(caption){
+  var p = gameplay.context.get(caption);
+  return p.color == 'w' ? p.type.toUpperCase() : p.type;
+}
+
 function getSquareName(square){
   return square.getAttribute('data-file')+square.getAttribute('data-rank');
 }
@@ -30,7 +35,7 @@ function getSquares(){
     var rank = { 'files':[], 'rank':r+1 };
     for(var f = reverse && 8 || -1; (!reverse && ++f<8) || ( reverse && --f>-1 );){
       caption = ui.fileCaptions[f]+(r+1);
-      rank.files.push({ 'piece':chess.get.bind(null,caption), 'file':ui.fileCaptions[f], 'rank':r+1, 'has_piece':exists.bind(null,caption) });
+      rank.files.push({ 'piece':getPiece.bind(null,caption), 'file':ui.fileCaptions[f], 'rank':r+1, 'has_piece':exists.bind(null,caption) });
     }
     ranks.push(rank);
   };

@@ -69,7 +69,11 @@ var nickname = (function(){
       on(el, 'keydown', check); 
       on(el, 'keyup', check); 
 
+      try {
       el.focus();
+      } catch (exc){
+        /* ya idiotic ie8 problem */
+      }
       el.value = el.value;
 
       on(window, 'load', function(){

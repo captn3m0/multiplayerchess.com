@@ -1,4 +1,4 @@
-// taken from nodejs
+
 /**
  * Inherit the prototype methods from one constructor into another.
  *
