@@ -76,6 +76,7 @@ function navigate(){
 function setup(){
 
   toledoChess.W.disabled = true;
+  toledoChess.init();
   
   dialogs = require('./dialogs');
 
