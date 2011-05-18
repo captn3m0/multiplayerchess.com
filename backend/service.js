@@ -31,6 +31,26 @@ router.register(['GET','POST'],'^/players/online/?$', function(request,emit){
   });
 });
 
+router.register(['POST','PUT'],'^/session/init/?$', function(request,emit){
+   var options = { 
+      'sessionId':session.generateSessionId(), 
+      'isPrivate':true, 
+      'nickname':request.body.nickname,
+      'ip':ip(request)
+   };
+
+  log('Initializing new session. IP:',options.ip,' Nickname:',options.nickname);
+
+  session.create(options,function(error, result){
+    if(error){
+      emit(error);
+    } else {
+      session.get(options.sessionId, emitSession.bind(undefined, emit, undefined));
+    }
+  });
+
+});
+
 router.register(['POST','PUT'],'^/session/new/?$', function(request,emit){
   var isPrivate = !!request.body.isPrivate || !!request.body.password, 
       options = { 

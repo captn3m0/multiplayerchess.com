@@ -46,12 +46,17 @@ function create(options, callback){
     'create_ts':config.interval.end,
     'type':'session',
     'fen':initialBoard,
-    'logs':[{ 'code':1, 'message':'Session created.', 'ts':config.interval.end },{ 'code':2, 'message':'White player connected.', 'ts':config.interval.end }],
-    'players':[{
+    'logs':[{ 'code':1, 'message':'Session created.', 'ts':config.interval.end }],
+    'players':[]
+  };
+
+  if(options.spId){
+    session.logs.push({ 'code':2, 'message':'White player connected.', 'ts':config.interval.end });
+    session.players.push({
       'id':options.spId,
       'white':true
-    }]
-  };
+    });
+  }
 
   options.isPrivate && ( session.is_private = true );
   options.password && ( session.password = options.password );
