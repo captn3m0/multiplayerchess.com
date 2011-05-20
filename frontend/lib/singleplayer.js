@@ -10,14 +10,17 @@ function counter(move,callback){
   });
 }
 
-function document(){
-  var now = (new Date).getTime();
+function document(_id){
+  var now = (new Date).getTime(),
+      id = _id,
+      fen = localStorage[_id] || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
   return {
     'document' : {
-      '_id':'singleplayer',
+      '_id':id,
       'singleplayer':true,
       'create_ts':now,
-      'fen':'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      'fen':fen,
       'logs':[
         { 'code':1, 'message':'Singleplayer session created.', 'ts':now }
       ]
@@ -54,6 +57,8 @@ function listen(move){
   gameplay.session.captures = gameplay.session.findCaptures();
   gameplay.session.events.publish('update');
 
+  sync();
+
   !gameplay.context.game_over() && counter(move,function(blackMove){
     gameplay.context.move(blackMove);
     blackMove.black = true;
@@ -63,17 +68,17 @@ function listen(move){
     gameplay.session.fen = gameplay.context.fen();
     gameplay.session.captures = gameplay.session.findCaptures();
     gameplay.session.events.publish('update');
+
+    sync();
   });
 
 }
 
-function navigate(){
-  if(!gameplay.session.singleplayer){
-    setup();
-  }
+function navigate(id){
+  setup(id);
 }
 
-function setup(){
+function setup(id){
 
   toledoChess.W.disabled = true;
   toledoChess.init();
@@ -81,7 +86,7 @@ function setup(){
   dialogs = require('./dialogs');
 
   gameplay.state = 3;
-  gameplay.session.importServiceResponse(document());
+  gameplay.session.importServiceResponse(document(id));
   
   var board = require('./widgets/board');
 
@@ -89,6 +94,10 @@ function setup(){
     board.on('move',listen);
   }
 
+}
+
+function sync(){
+  localStorage[gameplay.session.id] = chess.fen();
 }
 
 module.exports = {

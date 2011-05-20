@@ -196,3 +196,7 @@ if (!Array.prototype.reduce){
     return accumulator;
   };
 }
+
+if(window.localStorage==undefined){
+  localStorage = {}; // zaaaaa xd xd
+}

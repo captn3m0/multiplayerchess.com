@@ -9,7 +9,8 @@ var EventBroker = require('observer').EventBroker,
     dragndrop = require('../dragndrop'),
     on = require('dom').on;
 
-var select = null;
+var select = null,
+    focus;
 
 function exists(square){
   return gameplay.context.get(square)&&true||false;
@@ -91,7 +92,7 @@ function movePiece(eventArgs){
 
     var el = select('#board-square-table').children[square.rank].children[square.file],
         to = getSquareName(el),
-        move = from!=to && gameplay.getMove(from,to);
+        move = from!=to && gameplay.getMove(from,to) || selectPiece(from);
 
     move && makeMove(move);
 
@@ -149,6 +150,10 @@ function resize(layout){
   board.style.width = layout.boardSize+'px';
   board.style.height = layout.boardSize+'px';
   board.style.padding = layout.boardPosition.top+'px 0 0 '+layout.boardPosition.left+'px';
+}
+
+function selectPiece(loc){
+  selectedPiece = selectSquare(loc);
 }
 
 function selectSquare(loc){

@@ -17,6 +17,15 @@ function createPrivateSession(){
   gameplay.createSession({ 'isPrivate':true, 'nickname':dialogs.nickname.get() });
 }
 
+function createSingleplayerSession(){
+  if(gameplay.session.id){
+    confirmSessionLeave(arguments.callee);
+    return;
+  }
+
+  singleplayer.navigate('_'+Math.floor(Math.random()*99999999).toString(36));
+}
+
 function joinSession(sessionId){
   dialogs.showConnectionMsg();
   gameplay.join(sessionId,dialogs.nickname.get());
@@ -85,14 +94,17 @@ function setup(){
   router.setUrlMap({
     '^sessions/search/?$':search,
     '^sessions/new/private/?$':createPrivateSession,
-    '^singleplayer/?$':singleplayer.navigate,
+    '^sessions/new/singleplayer/?$':createSingleplayerSession,
+    '^singleplayer/?$':createSingleplayerSession,
     '^about/?$':dialogs.showAboutDialog,
     '^faq/?$':dialogs.showFAQDialog,
-    '^(\\w+)/leave/?$':leave,
-    '^(\\w+)/share/?$':share,
-    '^(\\w+)/pgn/?$':dialogs.showPGN,
-    '^(\\w+)/overview/?$':dialogs.showSessionOverview,
-    '^(\\w+)/?$':testSessionParamChange(joinSession),
+    '^([_a-zA-Z0-9]+)/leave/?$':leave,
+    '^([_a-zA-Z0-9]+)/share/?$':share,
+    '^([_a-zA-Z0-9]+)/pgn/?$':dialogs.showPGN,
+    '^([_a-zA-Z0-9]+)/overview/?$':dialogs.showSessionOverview,
+    '^([_a-zA-Z0-9]+)/?$':testSessionParamChange(function(params){
+      ( params[0].substring(0,1) == '_' && singleplayer.navigate || joinSession ).apply(undefined,params);
+    }),
     '^$':intro
   });
 

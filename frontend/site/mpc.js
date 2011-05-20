@@ -3125,14 +3125,17 @@ function counter(move,callback){
   });
 }
 
-function document(){
-  var now = (new Date).getTime();
+function document(_id){
+  var now = (new Date).getTime(),
+      id = _id,
+      fen = localStorage[_id] || 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+
   return {
     'document' : {
-      '_id':'singleplayer',
+      '_id':id,
       'singleplayer':true,
       'create_ts':now,
-      'fen':'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      'fen':fen,
       'logs':[
         { 'code':1, 'message':'Singleplayer session created.', 'ts':now }
       ]
@@ -3169,6 +3172,8 @@ function listen(move){
   gameplay.session.captures = gameplay.session.findCaptures();
   gameplay.session.events.publish('update');
 
+  sync();
+
   !gameplay.context.game_over() && counter(move,function(blackMove){
     gameplay.context.move(blackMove);
     blackMove.black = true;
@@ -3178,17 +3183,17 @@ function listen(move){
     gameplay.session.fen = gameplay.context.fen();
     gameplay.session.captures = gameplay.session.findCaptures();
     gameplay.session.events.publish('update');
+
+    sync();
   });
 
 }
 
-function navigate(){
-  if(!gameplay.session.singleplayer){
-    setup();
-  }
+function navigate(id){
+  setup(id);
 }
 
-function setup(){
+function setup(id){
 
   toledoChess.W.disabled = true;
   toledoChess.init();
@@ -3196,7 +3201,7 @@ function setup(){
   dialogs = require('./dialogs');
 
   gameplay.state = 3;
-  gameplay.session.importServiceResponse(document());
+  gameplay.session.importServiceResponse(document(id));
   
   var board = require('./widgets/board');
 
@@ -3204,6 +3209,10 @@ function setup(){
     board.on('move',listen);
   }
 
+}
+
+function sync(){
+  localStorage[gameplay.session.id] = chess.fen();
 }
 
 module.exports = {
@@ -3231,6 +3240,15 @@ function createPrivateSession(){
 
   dialogs.showConnectionMsg();
   gameplay.createSession({ 'isPrivate':true, 'nickname':dialogs.nickname.get() });
+}
+
+function createSingleplayerSession(){
+  if(gameplay.session.id){
+    confirmSessionLeave(arguments.callee);
+    return;
+  }
+
+  singleplayer.navigate('_'+Math.floor(Math.random()*99999999).toString(36));
 }
 
 function joinSession(sessionId){
@@ -3301,14 +3319,17 @@ function setup(){
   router.setUrlMap({
     '^sessions/search/?$':search,
     '^sessions/new/private/?$':createPrivateSession,
-    '^singleplayer/?$':singleplayer.navigate,
+    '^sessions/new/singleplayer/?$':createSingleplayerSession,
+    '^singleplayer/?$':createSingleplayerSession,
     '^about/?$':dialogs.showAboutDialog,
     '^faq/?$':dialogs.showFAQDialog,
-    '^(\\w+)/leave/?$':leave,
-    '^(\\w+)/share/?$':share,
-    '^(\\w+)/pgn/?$':dialogs.showPGN,
-    '^(\\w+)/overview/?$':dialogs.showSessionOverview,
-    '^(\\w+)/?$':testSessionParamChange(joinSession),
+    '^([_a-zA-Z0-9]+)/leave/?$':leave,
+    '^([_a-zA-Z0-9]+)/share/?$':share,
+    '^([_a-zA-Z0-9]+)/pgn/?$':dialogs.showPGN,
+    '^([_a-zA-Z0-9]+)/overview/?$':dialogs.showSessionOverview,
+    '^([_a-zA-Z0-9]+)/?$':testSessionParamChange(function(params){
+      ( params[0].substring(0,1) == '_' && singleplayer.navigate || joinSession ).apply(undefined,params);
+    }),
     '^$':intro
   });
 
@@ -3779,7 +3800,8 @@ mpc._jsbuild_.defineModule("widgets/board.js",function(exports,module,require,gl
     dragndrop = require('../dragndrop'),
     on = require('dom').on;
 
-var select = null;
+var select = null,
+    focus;
 
 function exists(square){
   return gameplay.context.get(square)&&true||false;
@@ -3861,7 +3883,7 @@ function movePiece(eventArgs){
 
     var el = select('#board-square-table').children[square.rank].children[square.file],
         to = getSquareName(el),
-        move = from!=to && gameplay.getMove(from,to);
+        move = from!=to && gameplay.getMove(from,to) || selectPiece(from);
 
     move && makeMove(move);
 
@@ -3919,6 +3941,10 @@ function resize(layout){
   board.style.width = layout.boardSize+'px';
   board.style.height = layout.boardSize+'px';
   board.style.padding = layout.boardPosition.top+'px 0 0 '+layout.boardPosition.left+'px';
+}
+
+function selectPiece(loc){
+  selectedPiece = selectSquare(loc);
 }
 
 function selectSquare(loc){
@@ -5023,7 +5049,7 @@ mpc._jsbuild_.getModuleByFilename("setup.js").call();
 mpc._jsbuild_.defineModule("bundle.js",function(exports,module,require,globals,undefined){
  
 var cache = require('./ui').TEMPLATE_CACHE;
-cache["intro.html"] = "<h2>   Hi   <input id=\"nickname\" type=\"text\" value=\"{{ nickname }}\" class=\"nickname\" autocomplete=\"off\" />   <div id=\"nickname-testbox\" class=\"nickname testbox\">{{ nickname }}</div>   ! </h2> <p>   MultiplayerChess.com is a new, quick way to play online chess. </p>  <a href=\"#!/sessions/search\" class=\"option\">   <span>     <h3>Find Online Opponent<label>fresh!</label></h3>     <div class=\"description\">       Get matched with another online online player instantly.      </div>   </span> </a>  <a href=\"#!/sessions/new/private\" class=\"option\">   <span>     <h3>Play With Your Friends</h3>     <div class=\"description\">       The option lets you to create a private session, with no time limitation.     </div>   </span> </a>  <a href=\"#!/singleplayer\" class=\"option\">   <span>     <h3>Singleplayer<label>so fresh!</label></h3>     <div class=\"description\">       For those willing to take a test drive, an artifical opponent.     </div>   </span> </a>  {{> news }} ";
+cache["intro.html"] = "<h2>   Hi   <input id=\"nickname\" type=\"text\" value=\"{{ nickname }}\" class=\"nickname\" autocomplete=\"off\" />   <div id=\"nickname-testbox\" class=\"nickname testbox\">{{ nickname }}</div>   ! </h2> <p>   MultiplayerChess.com is a new, quick way to play online chess. </p>  <a href=\"#!/sessions/search\" class=\"option\">   <span>     <h3>Find Online Opponent<label>fresh!</label></h3>     <div class=\"description\">       Get matched with another online online player instantly.      </div>   </span> </a>  <a href=\"#!/sessions/new/private\" class=\"option\">   <span>     <h3>Play With Your Friends</h3>     <div class=\"description\">       The option lets you to create a private session, with no time limitation.     </div>   </span> </a>  <a href=\"#!/sessions/new/singleplayer\" class=\"option\">   <span>     <h3>Singleplayer<label>so fresh!</label></h3>     <div class=\"description\">       For those willing to take a test drive, an artifical opponent.     </div>   </span> </a>  {{> news }} ";
 cache["capturetable.html"] = "<div id=\"capturetable-piece-list\" class=\"piece-list\">   {{#captures }}     {{{ . }}}   {{/captures}} </div> ";
 cache["dialogbox.html"] = "<div id=\"dialogbox\" class=\"dialogbox {{ class }}\" style=\"visibility:hidden\">   <div id=\"dialogbox-symbol\" class=\"symbol\">     {{{ symbol }}}   </div>   <div class=\"content\">     <div id=\"dialogbox-msg\" class=\"msg\">       {{{ message }}}     </div>     <div id=\"dialogbox-buttonset\" class=\"buttons\">       {{#buttons}}         <a class=\"{{ class }} button\" href=\"{{ link }}\">{{ caption }}</a>       {{/buttons}}     </div>   </div> </div> ";
 cache["news.html"] = "<div class=\"news\">   <h2>News</h2>   <ul>     <li>       <div class=\"date\">05.06.2011</div>       MultiplayerChess.com became an application in Google's Chrome AppStore. <a href=\"https://chrome.google.com/webstore/detail/ckjffnjacjdmdmpemmnplcgngbdgfmpc\" target=\"_blank\">Check it out!</a>     </li>     <li>       <div class=\"date\">04.18.2011</div>       Please give a try to the new AI opponent. It's in the singleplayer mode, it's in the story of where the Mechanical Turk came from!     </li>     <!--     <li>       <div class=\"date\">04.13.2011</div>       Session resumption feature was disabled, disconnection now means resign. Thanks for helpful feedbacks.     </li>     -->   </ul> </div> ";
