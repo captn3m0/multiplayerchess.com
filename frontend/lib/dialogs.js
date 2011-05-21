@@ -319,7 +319,9 @@ function showOpponentJoinMsg(){
 }
 
 function showOpponentLeaveMsg(){
-  dialogbox.open({ 'buttons':[{ 'caption':'Find New Opponent', 'link':'#!/sessions/search' },{ 'caption':'Create Private Game', 'link':'#!/sessions/new/private' }], 'message':'The opponent seems to have resigned/disconnected.', 'symbol':HOURGLASS });
+  if(!gameplay.session.isPrivate){
+    dialogbox.open({ 'buttons':[{ 'caption':'Find New Opponent', 'link':'#!/sessions/search' },{ 'caption':'Create Private Game', 'link':'#!/sessions/new/private' }], 'message':'The opponent seems to have resigned/disconnected.', 'symbol':HOURGLASS });
+  }
 }
 
 function setup(gpInstance){
