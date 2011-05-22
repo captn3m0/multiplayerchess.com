@@ -202,18 +202,17 @@ function updateOpponentStatus(){
   var opponent = gameplay.getOpponent(),
       self = gameplay.getSelf(),
       status = undefined,
-      lag, sec, min, h, online;
+      lag, sec, min, h;
 
   if(opponent){
     lag = Math.abs(self.last_move_ts-opponent.last_move_ts);
     sec = Math.floor(lag/1000);
     min = Math.floor(sec/60);
     h = Math.floor(min/60);
-    online = min<=1;
-    status = '<span class="'+(online&&'green'||'red')+'">'
-           + ( online && 'Online' || 'Offline' )
+    status = '<span class="'+(opponent.online&&'green'||'red')+'">'
+           + opponent.nickname
            + ' ('
-           + ( h ? h+'h' : ( min && (min+'min') || sec+'s' ) )
+           + ( opponent.online ? 'Online' : 'Offline' )
            + ')'
            + '</span>'
   }
