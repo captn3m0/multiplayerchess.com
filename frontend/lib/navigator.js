@@ -18,8 +18,15 @@ function createPrivateSession(){
 }
 
 function joinSession(sessionId){
-  dialogs.showConnectionMsg();
-  gameplay.join(sessionId,dialogs.nickname.get());
+  (function(nickname){
+    if(nickname=='Anonymous'){
+      return dialogs.nickname.prompt(arguments.callee);
+    }
+
+    dialogs.showConnectionMsg();
+    gameplay.join(sessionId,dialogs.nickname.get());
+
+  })(dialogs.nickname.get());
 }
 
 function intro(){

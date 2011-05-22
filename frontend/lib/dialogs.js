@@ -40,7 +40,9 @@ var nickname = (function(){
     }
 
     sync();
-    setTimeout(resize,0);
+    if(testEl){
+      setTimeout(resize,0);
+    }
   }
 
   function get(){
@@ -54,6 +56,32 @@ var nickname = (function(){
 
   function set(newVal){
     nickname = newVal;
+  }
+
+  function prompt(callback){
+
+    function close(){
+      callback(get());
+      dialogbox.close();
+    }
+
+    ui.getTemplate('nickname_prompt.html', function(error, template){
+      if(error){
+        throw error;
+      }
+      var html = ui.render(template, { 'nickname':get() });
+      dialogbox.open({ 'buttons':[{ 'click':close, 'caption':'OK Now' }], 'symbol':ui.getRandomSymbol(), 'class':'prompt nickname', 'message':html },function(){
+        testEl = undefined;
+        el = dialogbox.select('#nickname');
+        setTimeout(function(){
+          el.focus();
+        },500);
+
+        on(el, 'keydown', check); 
+        on(el, 'keyup', check); 
+      });
+    });
+
   }
 
   function sync(){
@@ -88,6 +116,7 @@ var nickname = (function(){
   return {
     'check':check,
     'get':get,
+    'prompt':prompt,
     'resize':resize,
     'set':set,
     'sync':sync,
