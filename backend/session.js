@@ -70,7 +70,7 @@ function createSessionPlayer(options,callback){
     '_id':options.spId,
     'type':'session_player',
     'session':options.sessionId,
-    'nickname':!!options.nickname && options.nickname.length > 1 && options.nickname.length < 21 && !/[^\w ]+/.test(options.nickname) ? options.nickname : 'Anonymous',
+    'nickname':!!options.nickname && options.nickname.length > 1 && options.nickname.length < 21 && !/[^\w@ ]+/.test(options.nickname) ? options.nickname : 'Anonymous',
     'ip':options.ip,
     'last_move_ts':config.interval.end
   }, callback);
