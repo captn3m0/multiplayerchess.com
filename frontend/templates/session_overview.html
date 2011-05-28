@@ -1,20 +1,40 @@
 <div class="session-overview">
+  <h1>
+    {{ white }} vs {{ black }} 
+    <span class="date">{{ create_date }}</span>
+  </h1>
+  {{# endMessage }}
+    <div class="end-message">{{{ endMessage }}}</div>
+  {{/ endMessage }}
   <div class="moves">
     <h3>FEN</h3>
     <div id="session-overview-fen" class="fen-content">
       {{ fen }}
     </div>
   </div>
+
   <div class="captures">
     <h3>Captured Pieces</h3>
     <div id="session-overview-captures" class="captures-content">
       {{>captures}}
     </div>
   </div>
-  <div class="moves">
-    <h3>Move History</h3>
-    <div id="session-overview-moves" class="moves-content">
-      {{>moves}}
+
+  <div class="left">
+    <div class="moves">
+      <h3>Move History</h3>
+      <div id="session-overview-moves" class="moves-content">
+        {{>moves}}
+      </div>
     </div>
   </div>
+  <div class="right">
+    <div class="pgn-output">
+      <h3>PGN</h3>
+      <div id="session-overview-pgn" class="pgn-content">
+        {{{ pgn }}}
+      </div>
+    </div>
+  </div>
+  <div class="clean"></div>
 </div>

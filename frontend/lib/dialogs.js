@@ -190,6 +190,8 @@ function showConnectionMsg(){
 }
 
 function showEndMsg(){
+  return showSessionOverview();
+  /*
   var ctx = gameplay.context,
       checkmate = ctx.in_checkmate(),
       draw = !checkmate && ctx.in_draw(),
@@ -201,7 +203,7 @@ function showEndMsg(){
     'buttons':[
       { 'caption':'Start New Game', 'click':navigator.navigate.bind(undefined,'') }
     ]   
-  }); 
+  });*/ 
 }
 
 function showErrorMsg(excinfo){
@@ -292,6 +294,38 @@ function showSessionOverview(){
     'moves':require('./widgets/moves').render
   };
 
+  var end = gameplay.context.game_over();
+
+  var windowContent = { 
+    'fen':gameplay.context.fen, 
+    'pgn':gameplay.session.pgn().replace(/\n/g,'<br />'),
+    'white':gameplay.white().nickname,
+    'black':gameplay.black().nickname,
+    'ongoing':!end,
+    'endMessage':function(){
+      var checkmate = end && gameplay.context.in_checkmate(),
+          draw = end && gameplay.context.in_draw(),
+          turn = gameplay.context.turn(),
+          winner = checkmate ? ( gameplay.context.turn() == 'w' && 'Black' || 'White' ) : 0;
+
+      return !end ? undefined : ( checkmate ? ('Checkmate. ' + winner + ' won!') : 'Draw' );
+    },
+    'create_date':function(){
+      return ui.prettifyTimestamp(gameplay.session.createTS);
+    }
+  };
+
+  var buttons = [];
+
+  if(!end){
+    buttons.push({ 'caption':'Close', 'click':navigator.resetNavigation });
+  } else {
+    buttons.push({ 
+      'caption':'Return To Main Menu', 
+      'click':navigator.navigate.bind(undefined,'') 
+    });
+  }
+
   ui.getTemplate('session_overview.html', function(error, template){
     if(error){ 
       throw error;
@@ -304,8 +338,8 @@ function showSessionOverview(){
 
       dialogbox.open({ 
         'symbol':ui.getRandomSymbol(),
-        'buttons':[{ 'caption':'Close', 'click':navigator.resetNavigation }], 
-        'message':ui.render(template, { 'fen':gameplay.context.fen }, partials)
+        'buttons':buttons, 
+        'message':ui.render(template, windowContent, partials)
       });
 
     });

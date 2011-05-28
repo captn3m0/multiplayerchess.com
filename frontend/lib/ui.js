@@ -38,6 +38,11 @@ function parseHtml(html){
   return parent.childNodes;
 }
 
+function prettifyTimestamp(ts){
+  var date = new Date(ts);
+  return date.getUTCFullYear() + '.' + ljust(String(date.getUTCMonth()+1),2,'0') + '.' + ljust(String(date.getDate()),2,'0');
+}
+
 function render(template, view, partials){
 
   !view && ( view = {} );
@@ -51,7 +56,6 @@ function render(template, view, partials){
 function setup(){
   module.exports.select = queryFragment.bind(null, document.getElementById('mpc'));
 }
-
 var readFile = (function(){
   try {
     return require('fs').readFile;
@@ -69,6 +73,7 @@ module.exports = {
   'getTemplate':getTemplate,
   'ljust':ljust,
   'parseHtml':parseHtml,
+  'prettifyTimestamp':prettifyTimestamp,
   'queryFragment':queryFragment,
   'render':render,
   'setup':setup

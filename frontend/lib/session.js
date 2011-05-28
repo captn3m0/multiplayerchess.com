@@ -1,7 +1,7 @@
 var Observable = require('observer').Observable,
     relativeDate = require('relative-date'),
     inherits = require('util').inherits,
-    ljust = require('./ui').ljust,
+    prettifyTimestamp = require('./ui').prettifyTimestamp,
     getServerTime = require('./service').getServerTime;
 
 function Session(){
@@ -129,10 +129,9 @@ Session.prototype.pgn = function(options){
   white = white ? white.nickname : '';
   black = black ? black.nickname : '';
   
-  var date = new Date(this.createTS);
   options.event = white+' vs '+black;
   options.site = 'multiplayerchess.com';
-  options.date = date.getUTCFullYear() + '.' + ljust(String(date.getUTCMonth()+1),2,'0') + '.' + ljust(String(date.getDate()),2,'0');
+  options.date = prettifyTimestamp(this.createTS);
   options.round = 1;
   options.white = white;
   options.black = black;
