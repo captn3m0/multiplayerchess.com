@@ -9,6 +9,10 @@
       "deps.json",
       "toledo-chess.json",
       "hlywa-chess.json",
+      "mustache.json",
+      "functools.json",
+      "observer.json",
+      "relativedate.json",
       "lib.json",
       "templates.json"
     ]
