@@ -1,0 +1,9 @@
+{
+  "name":"relative-date",
+  "build":{
+    "dir":"../deps/relative-date/lib",
+    "files":[
+      "relative-date.js"
+    ]
+  }
+}

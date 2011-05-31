@@ -1,0 +1,9 @@
+{
+  "name":"functools",
+  "build":{
+    "dir":"../deps/functools/lib",
+    "files":[
+      "functools.js"
+    ]
+  }
+}
