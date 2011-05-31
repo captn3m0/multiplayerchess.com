@@ -18,8 +18,11 @@ function createPrivateSession(){
 }
 
 function joinSession(sessionId){
+  var promptNickname = true;
+
   (function(nickname){
-    if(nickname=='Anonymous'){
+    if(promptNickname && nickname=='Anonymous'){
+      promptNickname = false;
       return dialogs.nickname.prompt(arguments.callee);
     }
 
