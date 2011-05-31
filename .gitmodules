@@ -1,3 +1,6 @@
 [submodule "frontend/deps/mustache"]
 	path = frontend/deps/mustache
 	url = git://github.com/azer/mustache.js.git
+[submodule "frontend/deps/functools"]
+	path = frontend/deps/functools
+	url = git://github.com/azer/functools.git
