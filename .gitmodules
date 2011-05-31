@@ -7,3 +7,6 @@
 [submodule "frontend/deps/observer"]
 	path = frontend/deps/observer
 	url = git://github.com/azer/observer.git
+[submodule "frontend/deps/relative-date"]
+	path = frontend/deps/relative-date
+	url = git://github.com/azer/relative-date.git
