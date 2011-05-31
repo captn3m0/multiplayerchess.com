@@ -4,3 +4,6 @@
 [submodule "frontend/deps/functools"]
 	path = frontend/deps/functools
 	url = git://github.com/azer/functools.git
+[submodule "frontend/deps/observer"]
+	path = frontend/deps/observer
+	url = git://github.com/azer/observer.git
