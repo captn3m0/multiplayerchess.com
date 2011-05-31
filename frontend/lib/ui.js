@@ -1,4 +1,4 @@
-var mustache = Mustache || require('mustache'),
+var mustache =  require('mustache'),
     config = require('./config');
 
 var fileCaptions = ['a','b','c','d','e','f','g','h'];

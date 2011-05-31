@@ -1,0 +1,9 @@
+{
+  "name":"mustache",
+  "build":{
+    "dir":"../deps/mustache",
+    "files":[
+      "mustache.js"
+    ]
+  }
+}
