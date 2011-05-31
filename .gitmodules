@@ -1,0 +1,3 @@
+[submodule "mustache.js"]
+	path = mustache.js
+	url = git@github.com:azer/mustache.js.git
