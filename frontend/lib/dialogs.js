@@ -324,6 +324,10 @@ function showSessionOverview(){
       'caption':'Return To Main Menu', 
       'click':navigator.navigate.bind(undefined,'') 
     });
+    buttons.push({ 
+      'caption':'Close', 
+      'click':dialogbox.close
+    });
   }
 
   ui.getTemplate('session_overview.html', function(error, template){
