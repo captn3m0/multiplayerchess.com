@@ -244,9 +244,7 @@ Gameplay.prototype.testPieceOwnership = function(square){
   return self && name && self[name.toUpperCase()==name&&'white'||'black'];
 }
 
-Gameplay.prototype.updatePlayerCount = function(errorCounter){
-  !errorCounter && ( errorCounter = 0 );
-
+Gameplay.prototype.updatePlayerCount = function(){
   var end = this.end(),
       player = !end && !this.session.singleplayer && this.getSelf(),
       method = player && 'POST' || 'GET';
@@ -255,12 +253,8 @@ Gameplay.prototype.updatePlayerCount = function(errorCounter){
 
   queryService(method, 'players/online', options,function(error, result){
     if(error){
-      if(++errorCounter<=3){
-        return next(errorCounter);
-      } else {
-        this.events.publish('disconnect');
-        throw error;
-      }
+      this.events.publish('disconnect');
+      throw error;
     }
 
     this.serverTime = result.serverTime;
