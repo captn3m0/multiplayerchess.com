@@ -1,3 +1,5 @@
+require('es5patch');
+
 var EventBroker = require('observer').EventBroker,
     Gameplay    = require('./gameplay').Gameplay,
     on          = require('dom').on,
