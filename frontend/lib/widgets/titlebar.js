@@ -1,5 +1,6 @@
 var gameplay = require('../setup').gameplay,
-    on = require('dom').on;
+    on = require('dom').on,
+    getOnlinePlayerCt = require('./sidebar').getOnlinePlayerCt;
 
 var focus = true,
     title;
@@ -28,6 +29,7 @@ function setup(){
   set(title());
 
   gameplay.session.on('update', refresh);
+  gameplay.on('updateServerInfo', refresh);
   gameplay.session.on('leave', refresh);
   gameplay.session.on('update', testFocus(flash.start));
 }
@@ -41,6 +43,7 @@ function testFocus(fn){
 function title(){
   var title = '', 
       black, white;
+
   if(gameplay.session.id){
     white = gameplay.white(); 
     black = gameplay.black(); 
@@ -49,9 +52,13 @@ function title(){
           + ' vs '
           + ( black ? black.nickname : '?' )
           + ' ― ';
+  } else if(gameplay.playerCount>1){
+    title = gameplay.playerCount
+          + ' Online Players'
+          + ' @ ';
   }
 
-  title+='Multiplayer Chess'
+  title+='Multiplayer Chess';
 
   return title;
 }
