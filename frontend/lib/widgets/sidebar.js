@@ -157,10 +157,18 @@ function setup(){
   select = module.exports.select = ui.queryFragment.bind(null, ui.select('#sidebar'));
   container.events.subscribe('resize', resize);
 
-  updateOnlinePlayerCt();
   setOpponent();
   gameplay.session.on('update', function(){
     updateOpponentStatus();
+  });
+
+  gameplay.session.on('leave', function(){
+    updateOpponentStatus();
+  });
+
+  setOnlinePlayerCt();
+  gameplay.on('updateServerInfo', function(){
+    setOnlinePlayerCt(gameplay.playerCount);
   });
 }
 
@@ -169,33 +177,22 @@ function setWidgetContent(widgetName,value){
       valbox  = select('#'+widgetName+'-content'),
       sidebar, width, height;
 
-  if(value && valbox.innerHTML!=value){
-    sidebar = select(),
-    width = sidebar.offsetWidth,
-    height = sidebar.offsetHeight;
-
-    valbox.innerHTML = value;
+  if(!value){
+    widget.style.display = 'none';
+  } else {
     widget.style.display = '';
 
-    resize();
-  } else if(!value) {
-    widget.style.display = 'none';
+    if(valbox.innerHTML!=value){
+      sidebar = select(),
+      width = sidebar.offsetWidth,
+      height = sidebar.offsetHeight;
+
+      valbox.innerHTML = value;
+
+      resize();
+    }
   }
 
-}
-
-function updateOnlinePlayerCt(){
-  var player = !gameplay.session.singleplayer && gameplay.getSelf();
-  queryService(player&&'POST'||'GET', 'players/online', player && { 'spId':player.id } || null,function(error, result){
-    if(error) throw error;
-    serverTime = result.serverTime;
-
-    setOnlinePlayerCt(result.online_player_count);
-
-    updateOpponentStatus();
-
-    setTimeout(updateOnlinePlayerCt, 3000);
-  });
 }
 
 function updateOpponentStatus(){
@@ -231,6 +228,5 @@ module.exports = {
   'setOnlinePlayerCt':setOnlinePlayerCt,
   'setOpponent':setOpponent,
   'setup':setup,
-  'updateOnlinePlayerCt':updateOnlinePlayerCt,
   'updateOpponentStatus':updateOpponentStatus
 }
