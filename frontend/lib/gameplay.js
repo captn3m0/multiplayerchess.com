@@ -12,29 +12,37 @@ function Gameplay(){
   this._stream_ = null;
 
   this.context = new Chess;
+  this.playerCount = undefined;
   this.serverTime = undefined;
   this.session = new Session;
   this.session.gameplay = this;
   this.state = 0;
 
-
   this.events.create('connect');
   this.events.create('disconnect');
   this.events.create('error');
+  this.events.create('updateServerInfo');
 
   this.session.on('create', this.listenForOpponent.bind(this));
   this.session.on('update', this.checkRevisionUpdate.bind(this));
   this.session.on('update', this.checkGameState.bind(this));
+
+  this.updatePlayerCount();
 }
 
 inherits(Gameplay, Observable);
+
+Gameplay.prototype.abortStream = function(){
+  this._stream_ && this._stream_.abort();
+};
 
 Gameplay.prototype.black = function(){
   return this.session.player('black', true);
 };
 
 Gameplay.prototype.checkGameState = function(){
-  if(this.context.game_over()){
+  if(this.end()){
+    this.abortStream();
     this.state = stateCodes.END;
     this.session.events.publish('end');
   }
@@ -54,7 +62,7 @@ Gameplay.prototype.checkRevisionUpdate = function(){
 Gameplay.prototype.createSession = function(options){
   this.state = stateCodes.CONNECTING;
 
-  this._stream_ && this._stream_.abort();
+  this.abortStream();
   this.session.players = [];
 
   queryService('POST', 'session/new', options, function(error,response){
@@ -68,6 +76,13 @@ Gameplay.prototype.createSession = function(options){
     this.events.publish('connect');
 
   }.bind(this));
+};
+
+Gameplay.prototype.end = function(){
+  var white = this.white(), black = this.black();
+  return  this.context.game_over() ||
+          ( white && white.resigned ) ||
+          ( black && black.resigned );
 };
 
 Gameplay.prototype.getMove = function(from,to){
@@ -122,12 +137,16 @@ Gameplay.prototype.listenForMove = function(){
 
   player && (body[ 'spId' ] = player.id);
 
-  this._stream_ && this._stream_.abort();
+  this.abortStream();
 
   (function(){
+    if(this.end()){
+      console.log('ended session. no need to update anymore');
+      return;
+    }
     var tryAgain = arguments.callee.bind(this);
     this._stream_ = queryService('POST', 'session/'+id+'/listen/update',body,function(error, response){
-      this._stream_ = null;
+      this._stream_ = undefined;
       if(error){
         this.events.publish('error', error);
         return;
@@ -146,7 +165,7 @@ Gameplay.prototype.listenForOpponent = function(){
   var sessionId = this.session.id,
       playerId  = this.getSelf().id;
 
-  this._stream_ && this._stream_.abort();
+  this.abortStream();
 
   (function(){
     var tryAgain = arguments.callee.bind(this);
@@ -180,7 +199,7 @@ Gameplay.prototype.makeMove = function(move){
 };
 
 Gameplay.prototype.reset = function(){
-  this._stream_ && this._stream_.abort();
+  this.abortStream();
   this.state = stateCodes.UNINITIALIZED;
   this.session.id = undefined;
   this.session.players = [];
@@ -224,6 +243,35 @@ Gameplay.prototype.testPieceOwnership = function(square){
 
   return self && name && self[name.toUpperCase()==name&&'white'||'black'];
 }
+
+Gameplay.prototype.updatePlayerCount = function(errorCounter){
+  !errorCounter && ( errorCounter = 0 );
+
+  var end = this.end(),
+      player = !end && !this.session.singleplayer && this.getSelf(),
+      method = player && 'POST' || 'GET';
+      options = player && { 'spId':player.id } || null,
+      next = arguments.callee.bind(this);
+
+  queryService(method, 'players/online', options,function(error, result){
+    if(error){
+      if(++errorCounter<=3){
+        return next(errorCounter);
+      } else {
+        this.events.publish('disconnect');
+        throw error;
+      }
+    }
+
+    this.serverTime = result.serverTime;
+    this.playerCount = result.online_player_count;
+
+    this.events.publish('updateServerInfo');
+
+    setTimeout(next, player && 8000 || 3000);
+  }.bind(this));
+};
+
 
 Gameplay.prototype.white = function(){
   return this.session.player('white', true);
