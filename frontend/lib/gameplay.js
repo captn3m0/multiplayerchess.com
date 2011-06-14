@@ -141,7 +141,6 @@ Gameplay.prototype.listenForMove = function(){
 
   (function(){
     if(this.end()){
-      console.log('ended session. no need to update anymore');
       return;
     }
     var tryAgain = arguments.callee.bind(this);
