@@ -294,13 +294,15 @@ function showSessionOverview(){
     'moves':require('./widgets/moves').render
   };
 
-  var end = gameplay.context.game_over();
+  var end = gameplay.context.game_over(),
+      white = gameplay.white(),
+      black = gameplay.black();
 
   var windowContent = { 
     'fen':gameplay.context.fen, 
     'pgn':gameplay.session.pgn().replace(/\n/g,'<br />'),
-    'white':gameplay.white().nickname,
-    'black':gameplay.black().nickname,
+    'white':white && white.nickname,
+    'black':black && black.nickname || '?',
     'ongoing':!end,
     'endMessage':function(){
       var checkmate = end && gameplay.context.in_checkmate(),
