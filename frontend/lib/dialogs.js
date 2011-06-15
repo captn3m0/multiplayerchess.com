@@ -7,7 +7,8 @@ var dialogbox = require('./widgets/dialogbox'),
     on = require('dom').on,
     operateAsync = require('operate_async').operateAsync,
     gameplay = require('./setup').gameplay,
-    history = require('./history');
+    history = require('./history'),
+    mobile = require('environ').mobile();
 
 var HOURGLASS = '<img src="hourglass.png" width="100" height="130" />';
 
@@ -98,7 +99,7 @@ var nickname = (function(){
       on(el, 'keyup', check); 
 
       try {
-      el.focus();
+      !mobile && el.focus();
       } catch (exc){
         /* ya idiotic ie8 problem */
       }

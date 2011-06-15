@@ -13,6 +13,7 @@
       "functools.json",
       "observer.json",
       "relativedate.json",
+      "environ.json",
       "lib.json",
       "templates.json"
     ]

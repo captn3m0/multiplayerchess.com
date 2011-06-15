@@ -60,12 +60,7 @@ function highlightLastOpponentMove(){
 
 function movePiece(eventArgs){
   
-  if(eventArgs.preventDefault){
-    eventArgs.preventDefault();
-  } else {
-    eventArgs.cancelBubble = true;
-    eventArgs.returnValue = false;
-  }
+  dragndrop.preventEvent(eventArgs);
 
   var target  = eventArgs.target || eventArgs.srcElement,
       isPiece = css.hasClass(target,'piece'),
@@ -81,9 +76,11 @@ function movePiece(eventArgs){
     return;
   }
 
+
   from = getSquareName(piece.parentNode);
   dragndrop.drag(target, function(eventArgs){
-    var square = getSquareByCoords(eventArgs.clientX,eventArgs.clientY);
+    var pcoors = dragndrop.clientCoords(eventArgs),
+        square = getSquareByCoords(pcoors.x,pcoors.y);
 
     if(!square){
       return;
@@ -178,8 +175,8 @@ function setup(){
   select = module.exports.select = ui.queryFragment.bind(null,wrapper);
   container.events.subscribe('resize', resize);
 
-  on(wrapper, 'mousedown', movePiece);
   on(wrapper, 'touchstart', movePiece);
+  on(wrapper, 'mousedown', movePiece);
   
   gameplay.session.on('update', refresh); 
 }
