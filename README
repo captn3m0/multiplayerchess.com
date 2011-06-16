@@ -9,9 +9,10 @@ $ cd multiplayerchess.com/db
 $ ./bootstrap.sh
 $ cd ../backend
 $ vim config.js
+$ make run
 $ cd ../frontend
 $ vim lib/config.js
-$ ./build
+$ make
 
 Dependencies
 ============
