@@ -21,3 +21,7 @@ stop:
 run:
 	echo "[start]">>logs
 	node service.js>>logs &
+
+.PHONY: logs
+logs:
+	tail -f ./logs
