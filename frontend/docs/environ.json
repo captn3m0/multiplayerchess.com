@@ -1,0 +1,9 @@
+{
+  "name":"environ",
+  "build":{
+    "dir":"../deps/environ/lib",
+    "files":[
+      "environ.js"
+    ]
+  }
+}
