@@ -111,9 +111,9 @@ function get(id,callback){
 
     var players = [];
     for(var i = -1, len=doc.players.length; ++i < len; ){
-      if(!playertable.hasOwnProperty(doc.players[i].id)){ 
-        continue;
-      }
+      if(!playertable.hasOwnProperty(doc.players[i].id)){ 
+        continue;
+      }
       var player = doc.players[i],
           ts = playertable[player.id].last_move_ts;
 
@@ -123,7 +123,8 @@ function get(id,callback){
         'black':player.black,
         'nickname':playertable[player.id].nickname,
         'last_move_ts':ts,
-        'online':config.interval.start<ts
+        'online':config.interval.start<ts,
+        'resigned':playertable[player.id].resigned
       });
     }
 
@@ -138,11 +139,12 @@ function listAvailableSessions(callback){
     var sessions = [],
         ids = result.rows.map(function(el){ return el.value._id });
 
+
     for(var i = -1, len=result.rows.length; ++i < len; ){
       var row = result.rows[i],
           session = row.doc,
-          sole = session && ids.indexOf(session._id,ids.indexOf(session._id)+1)==-1;
-
+          sole = session && session.players.length == 1;
+      
      session && !session.end && !session.is_private && sole && sessions.push(session._id);
     };
 
@@ -156,8 +158,10 @@ function listenForUpdate(sessionId,rev,callback,executionCounter){
 
   get(sessionId,function(error,session){
     if(error){
-      callback(error);
-    } else if(session.document._rev != rev) {
+      return callback(error);
+    } 
+
+    if(session.document._rev != rev || ( session.players[0].resigned || session.players[1].resigned ) ) {
       callback(null,session);
     } else if(executionCounter<15/(delay/1000)){
       setTimeout(listenForUpdate,delay,sessionId,rev,callback,executionCounter+1);
@@ -250,13 +254,15 @@ function makeMove(sessionId,spId,move,callback){
   });
 }
 
-function updateSessionPlayerTS(spId,callback){ 
+
+function resign(spId,callback){
+  console.log('Resigned player:',spId);
   getDocument(spId, function(error, doc){
     if(error){
       return callback && callback(error);
     }
 
-    doc.last_move_ts = config.interval.end;
+    doc.resigned = true;
     save(doc, callback);
   });
 }
@@ -298,6 +304,18 @@ function restoreSessionPlayer(options,callback){
   });
 }
 
+function updateSessionPlayerTS(spId,callback){ 
+  console.log('update session player:',spId);
+  getDocument(spId, function(error, doc){
+    if(error){
+      return callback && callback(error);
+    }
+
+    doc.last_move_ts = config.interval.end;
+    save(doc, callback);
+  });
+}
+
 module.exports = {
   'attachSessionPlayer':attachSessionPlayer,
   'create':create,
@@ -311,6 +329,7 @@ module.exports = {
   'listenForUpdate':listenForUpdate,
   'listOnlinePlayers':listOnlinePlayers,
   'makeMove':makeMove,
+  'resign':resign,
   'restoreSessionPlayer':restoreSessionPlayer,
   'updateSessionPlayerTS':updateSessionPlayerTS
 };

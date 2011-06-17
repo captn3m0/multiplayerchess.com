@@ -3,6 +3,7 @@ var publish     = require('./publish'),
     config      = require('./config'),
     crypto      = require('crypto'),
     getDocument = require('./couchdb').get,
+    fs          = require('fs'),
     router      = publish.router,
     log         = publish.log,
     ip          = publish.ip;
@@ -17,7 +18,10 @@ router.get('^/?$',function(request,emit){
 
 router.register(['GET','POST'],'^/players/online/?$', function(request,emit){
   session.listOnlinePlayers(function(error,result){
-    if(error) return emit(error);
+    if(error){ 
+      return emit(error);
+    }
+
     var responseBody = { 'online_player_count':result.total_rows-result.offset };
     if(request.body.spId){
       session.updateSessionPlayerTS(request.body.spId,function(error, result){
@@ -138,6 +142,17 @@ router.register(['POST','PUT'],'^/session/([\\w\-]+)/move/?$', function(request,
   });
 });
 
+router.register(['POST','PUT'],'^/session/([\\w\-]+)/resign/?$', function(request,emit,sessionId){
+  console.log('Resign. spId:',request.body.spId);
+  session.resign(request.body.spId,function(error){
+    if(error){
+      emit(error);
+    } else {
+      session.get(sessionId, emitSession.bind(undefined, emit, request.body.spId));
+    }
+  });
+});
+
 router.get('^/sessions/available/?$', function(request,emit){
   session.listAvailableSessions(function(error,sessions){
     emit(null,{ 'sessions':sessions }).end();
@@ -224,4 +239,6 @@ function filterPlayerList(players,requestOwner){
   };
 }
 
+fs.writeFileSync('.pid', process.pid.toString(), 'ascii');
 publish.start();
+console.log('Started publishing multiplayerchess.com at '+config.HOST+':'+config.PORT);
