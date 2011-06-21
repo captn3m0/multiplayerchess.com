@@ -2,6 +2,7 @@ var toledoChess = require('toledo-chess'),
     relativeDate = require('relative-date'),
     gameplay = require('./setup').gameplay,
     chess = gameplay.context,
+    dialogbox = require('./widgets/dialogbox'),
     dialogs;
 
 function counter(move,callback){
@@ -17,6 +18,7 @@ function document(){
       '_id':'singleplayer',
       'singleplayer':true,
       'create_ts':now,
+      'end':false,
       'fen':'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
       'logs':[
         { 'code':1, 'message':'Singleplayer session created.', 'ts':now }
@@ -69,11 +71,20 @@ function listen(move){
 
 function navigate(){
   if(!gameplay.session.singleplayer){
+    dialogbox.close();
     setup();
   }
 }
 
+function resign(){
+  gameplay.white().resigned = true;
+  gameplay.session.end = true;
+  gameplay.session.events.publish('end');
+}
+
 function setup(){
+
+  gameplay.reset();
 
   toledoChess.W.disabled = true;
   toledoChess.init();
@@ -82,7 +93,7 @@ function setup(){
 
   gameplay.state = 3;
   gameplay.session.importServiceResponse(document());
-  
+
   var board = require('./widgets/board');
 
   if(board.events.get('move').indexOf(listen)){
@@ -93,5 +104,6 @@ function setup(){
 
 module.exports = {
   'navigate':navigate,
+  'resign':resign,
   'setup':setup
 }

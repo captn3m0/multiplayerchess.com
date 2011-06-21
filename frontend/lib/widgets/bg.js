@@ -1,6 +1,7 @@
 var ui = require('../ui'),
     gameplay = require('../setup').gameplay,
-    colors = require('../config').colors,
+    config = require('../config'),
+    colors = config.colors,
     fileCaptions = require('../ui').fileCaptions,
     container = require('./container');
 
@@ -14,16 +15,18 @@ function drawAppBg(ctx,layout){
     vp=(layout.squareSize-(layout.boardPosition.top%layout.squareSize))*-1;
     while(vp<layout.viewport.height){
       if( (hp<=layout.boardPosition.left-layout.squareSize || layout.boardPosition.left+layout.squareSize*7<hp) || (vp<=layout.boardPosition.top-layout.squareSize || layout.boardPosition.top+layout.squareSize*7<vp) ){
-        r = Math.floor(Math.random()*10)+10;
-        g = Math.floor(Math.random()*10)+10;
-        b = Math.floor(Math.random()*10)+10;
-        triangleAlpha = Math.floor(Math.random()*5);
+        r = Math.floor(Math.random()*15)+10;
+        g = Math.floor(Math.random()*15)+10;
+        b = Math.floor(Math.random()*15)+10;
 
-        ctx.fillStyle = 'rgb('+r+','+g+','+b+')'
+        ctx.fillStyle = 'rgba('+r+','+g+','+b+',0.75)'
         ctx.fillRect(hp, vp, layout.squareSize, layout.squareSize);
         
+        //triangleAlpha = Math.floor(Math.random()*5)+8;
+        //ctx.fillStyle = 'rgba('+(r+triangleAlpha)+','+(g+triangleAlpha)+','+(b+triangleAlpha)+',0.90)';
 
-        ctx.fillStyle = 'rgb('+(r+triangleAlpha)+','+(g+triangleAlpha)+','+(b+triangleAlpha)+')';
+        triangleAlpha = Math.floor(Math.random()*5)/100;
+        ctx.fillStyle = 'rgba(255,255,255,'+(triangleAlpha)+')';
         ctx.beginPath();
         ctx.moveTo(hp+triangleSize*4,vp+triangleSize*3);
         ctx.lineTo(hp+triangleSize*3,vp+triangleSize*5);
@@ -84,8 +87,6 @@ function drawCaptions(ctx,layout){
     ctx.fillText(caption,x,layout.boardPosition.top-5,layout.captionListSize);
     ctx.fillText(caption,x,layout.boardPosition.top+layout.boardSize+15,layout.captionListSize);
   }
-
-
 }
 
 function drawSidebarBg(ctx, layout){
@@ -102,8 +103,8 @@ function drawRectangles(layout){
     var canvas = select(),
         ctx = canvas.getContext('2d');
 
-    //ctx.clearRect(0,0,boardLayout.width,boardLayout.height);
-
+    ctx.clearRect(0,0,layout.viewport.width,layout.viewport.height);
+    
     drawAppBg(ctx,layout);
     drawBoardBg(ctx,layout);
     drawSidebarBg(ctx,layout);
@@ -148,12 +149,6 @@ function setup(){
   }
 
   container.events.subscribe('resize', draw);
-  gameplay.on('connect',function(){
-    var ctx = select().getContext('2d');
-    drawAppBg(ctx,container.layout);
-    drawSidebarBg(ctx,container.layout);
-    drawCaptions(ctx,container.layout);
-  });
 }
 
 var draw = (function(){

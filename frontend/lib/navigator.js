@@ -4,32 +4,37 @@ var gameplay = require('./setup').gameplay,
     dialogbox = require('./widgets/dialogbox'),
     ui = require('./ui'),
     singleplayer = require('./singleplayer'),
+    getSessions = require('./history').getSessions,
     dialogs;
 
 function createPrivateSession(){
   
   if(gameplay.session.id){
-    confirmSessionLeave(arguments.callee);
+    dialogs.confirmSessionLeave(arguments.callee);
     return;
   }
 
-  dialogs.showConnectionMsg();
-  gameplay.createSession({ 'isPrivate':true, 'nickname':dialogs.nickname.get() });
+  nickname(null, function(error, nname){
+    dialogs.showConnectionMsg();
+    gameplay.createSession({ 'isPrivate':true, 'nickname':nname });
+  });
 }
 
-function joinSession(sessionId){
-  var promptNickname = true;
-
-  (function(nickname){
-    if(promptNickname && nickname=='Anonymous'){
-      promptNickname = false;
-      return dialogs.nickname.prompt(arguments.callee);
-    }
-
+function joinSession(sessionId,callback){
+  nickname(sessionId, function(error, nname){
     dialogs.showConnectionMsg();
-    gameplay.join(sessionId,dialogs.nickname.get());
+    gameplay.join(sessionId,nname,callback);
+  });
+}
 
-  })(dialogs.nickname.get());
+function nickname(sessionId,callback){
+  var nname = dialogs.nickname.get();
+  if(nname=='Anonymous' && ( !sessionId || !getSessions().hasOwnProperty(sessionId) )){
+    dialogs.nickname.prompt(callback);
+  } else {
+    callback(null, nname);
+  }
+
 }
 
 function intro(){
@@ -38,28 +43,11 @@ function intro(){
 }
 
 function leave(){
-  return confirmSessionLeave(navigate.bind(undefined,''));
-}
-
-function confirmSessionLeave(callback){
-  dialogbox.open({
-    'symbol':'?',
-    'message':'Are you sure to leave this session?',
-    'buttons':[
-      {
-        'caption':'No',
-        'click':resetNavigation
-      },
-      { 
-        'caption':'Yes', 
-        'click':function(){
-          dialogbox.close();
-          gameplay.reset();
-          callback();
-        }
-      }
-    ]
-  });
+  if(!gameplay.end()){
+    dialogs.confirmSessionLeave(navigate.bind(undefined,''));
+  } else {
+    navigate(''); 
+  }
 }
 
 function navigate(url){
@@ -67,26 +55,60 @@ function navigate(url){
   router.route(url);
 }
 
-function resetNavigation(){
+function reset(){
   dialogbox.close();
-  if(gameplay.session.id){
-    navigate(gameplay.session.id);
-    gameplay.state == 2 && ( dialogs.showStartDialog() );
-    gameplay.state == 4 && ( dialogs.showEndMsg() );
-    gameplay.checkRevisionUpdate();
+  navigate(gameplay.session.id || '');
+}
+
+function resetDialogs(){
+  dialogbox.close();
+
+  if(gameplay.session.id && gameplay.state == 2){
+    dialogs.showStartDialog();
+  } else if(gameplay.session.id && gameplay.state == 4){
+    navigate(gameplay.session.id+'/overview'); 
   } else {
     navigate('');
   }
 }
 
+function resign(){
+  dialogs.confirm('Are you sure you want to resign?',gameplay.resign.bind(gameplay));
+}
+
 function search(){
   if(gameplay.session.id){
-    confirmSessionLeave(arguments.callee);
+    dialogs.confirmSessionLeave(arguments.callee);
     return;
   }
 
   dialogs.showConnectionMsg();
-  gameplay.start(dialogs.nickname.get());
+
+  nickname(null, function(error, nname){
+    gameplay.start(nname);
+  });
+}
+
+function sessionSubNavWrapper(fn){
+  return function(args){
+    var sessionId = args[0];
+    if(gameplay.session.id == sessionId){
+      fn.apply(null,arguments);
+      return; 
+    }
+
+    var url = router.getUrl();
+
+    if(sessionId=='singleplayer'){
+      singleplayer.navigate();
+      navigate(url);
+      return;
+    }
+
+    joinSession(sessionId, function(){
+      navigate(url);
+    });
+  }
 }
 
 function setup(){
@@ -97,11 +119,14 @@ function setup(){
     '^sessions/new/private/?$':createPrivateSession,
     '^singleplayer/?$':singleplayer.navigate,
     '^about/?$':dialogs.showAboutDialog,
+    '^photographers/?$':dialogs.photographers,
+    '^photographers/([^\/]*)?/?$':dialogs.photographers,
     '^faq/?$':dialogs.showFAQDialog,
-    '^(\\w+)/leave/?$':leave,
-    '^(\\w+)/share/?$':share,
-    '^(\\w+)/pgn/?$':dialogs.showPGN,
-    '^(\\w+)/overview/?$':dialogs.showSessionOverview,
+    '^(\\w+)/leave/?$':sessionSubNavWrapper(leave),
+    '^(\\w+)/share/?$':sessionSubNavWrapper(share),
+    '^(\\w+)/pgn/?$':sessionSubNavWrapper(dialogs.showPGN),
+    '^(\\w+)/resign/?$':sessionSubNavWrapper(resign),
+    '^(\\w+)/overview/?$':sessionSubNavWrapper(dialogs.showSessionOverview),
     '^(\\w+)/?$':testSessionParamChange(joinSession),
     '^$':intro
   });
@@ -110,6 +135,9 @@ function setup(){
 
   gameplay.session.on('create', testSessionParamChange(updateSessionParam));
   gameplay.session.on('join', testSessionParamChange(updateSessionParam));
+  gameplay.session.on('end', function(){
+    navigate(gameplay.session.id+'/overview');
+  });
 }
 
 function share(){
@@ -120,7 +148,7 @@ function share(){
                + '<input class="urlbox" value="'+config.APPLICATION_URL+'/#!/'+gameplay.session.id+'" />',
       'buttons':[{
         'caption':'Close',
-        'click':resetNavigation
+        'click':resetDialogs
       }]
     });
   }
@@ -128,7 +156,7 @@ function share(){
 
 function testSessionParamChange(callback){
   return function(){
-    gameplay.session.id!=router.getUrl() && callback.apply(undefined, arguments);
+    gameplay.session.id!=router.getUrl().split('/')[0] && callback.apply(undefined, arguments);
   }
 }
 
@@ -141,7 +169,8 @@ module.exports = {
   'joinSession':joinSession,
   'leave':leave,
   'navigate':navigate,
-  'resetNavigation':resetNavigation,
+  'reset':reset,
+  'resetDialogs':resetDialogs,
   'search':search,
   'setup':setup,
   'share':setup,

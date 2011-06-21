@@ -128,6 +128,8 @@ function get(id,callback){
       });
     }
 
+    !doc.end && ( ( players[0] && players[0].resigned ) || ( players[1] && players[1].resigned ) ) && ( doc.end = true );;
+
     callback(null,{ 'id':doc._id, 'document':doc, 'players':players });
   });
 }
@@ -152,23 +154,55 @@ function listAvailableSessions(callback){
   });
 }
 
-function listenForUpdate(sessionId,rev,callback,executionCounter){
+function listenForUpdate(options,callback,executionCounter){
   !executionCounter && ( executionCounter = 0 );
   var delay = 1000;
 
-  get(sessionId,function(error,session){
-    if(error){
-      return callback(error);
-    } 
-
-    if(session.document._rev != rev || ( session.players[0].resigned || session.players[1].resigned ) ) {
+  function check(session){
+    if(session.document._rev != options.rev || ( ( session.players[0] && session.players[0].resigned ) || ( session.players[1] && session.players[1].resigned ) ) ) {
       callback(null,session);
     } else if(executionCounter<15/(delay/1000)){
-      setTimeout(listenForUpdate,delay,sessionId,rev,callback,executionCounter+1);
+      setTimeout(listenForUpdate,delay,options,callback,executionCounter+1);
     } else {
       session.ok = false;
       callback(null,session);
     }
+  }
+
+  get(options.sessionId,function(error,session){
+    if(error){
+      callback(error);
+      return;
+    }
+
+    if(session.document.is_private){
+      check(session);
+      return;
+    }
+
+    var player = undefined,
+        next;
+
+    (function(i){
+        
+      if(i>1){
+        check(session);
+        return;
+      }
+      
+      next = arguments.callee.bind(null,i+1);
+
+      player = session.players[i];
+
+      if(player && player.id != options.spId && player.last_move_ts<config.interval.start){
+        resign(player.id, function(){
+          check(session);
+        });
+      } else {
+        next();
+      }
+
+    })(0);
 
   });
 }
@@ -179,7 +213,10 @@ function listenForOpponent(sessionId,callback,executionCounter){
   return get(sessionId,function(error,session){
     if(error){
       callback(error);
-    } else if(session.players.length==2) {
+      return;
+    } 
+    
+    if(session.players.length==2) {
       callback(null,session);
     } else if(executionCounter<30/(delay/1000)){
       setTimeout(listenForOpponent,delay,sessionId,callback,executionCounter+1);
@@ -256,7 +293,7 @@ function makeMove(sessionId,spId,move,callback){
 
 
 function resign(spId,callback){
-  console.log('Resigned player:',spId);
+  console.log('Resign request. spId:',spId);
   getDocument(spId, function(error, doc){
     if(error){
       return callback && callback(error);

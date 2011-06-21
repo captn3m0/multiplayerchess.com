@@ -4,6 +4,7 @@ var Observable = require('observer').Observable,
     Session = require('./session').Session,
     player = require('./player'),
     history = require('./history'),
+    prettifyTimestamp = require('./ui').prettifyTimestamp,
     queryService = require('./service').query;
 
 function Gameplay(){
@@ -16,6 +17,7 @@ function Gameplay(){
   this.serverTime = undefined;
   this.session = new Session;
   this.session.gameplay = this;
+  this.spectator = undefined;
   this.state = 0;
 
   this.events.create('connect');
@@ -26,6 +28,7 @@ function Gameplay(){
   this.session.on('create', this.listenForOpponent.bind(this));
   this.session.on('update', this.checkRevisionUpdate.bind(this));
   this.session.on('update', this.checkGameState.bind(this));
+  this.session.on('end', this.abortStream.bind(this));
 
   this.updatePlayerCount();
 }
@@ -41,8 +44,7 @@ Gameplay.prototype.black = function(){
 };
 
 Gameplay.prototype.checkGameState = function(){
-  if(this.end()){
-    this.abortStream();
+  if(this.session.singleplayer && this.end()){
     this.state = stateCodes.END;
     this.session.events.publish('end');
   }
@@ -79,10 +81,7 @@ Gameplay.prototype.createSession = function(options){
 };
 
 Gameplay.prototype.end = function(){
-  var white = this.white(), black = this.black();
-  return  this.context.game_over() ||
-          ( white && white.resigned ) ||
-          ( black && black.resigned );
+  return this.session.end || this.context.game_over();
 };
 
 Gameplay.prototype.getMove = function(from,to){
@@ -107,7 +106,7 @@ Gameplay.prototype.getSelf = function(){
   return this.session.player('id', undefined, 'string');
 }
 
-Gameplay.prototype.join = function(sessionId,nickname){
+Gameplay.prototype.join = function(sessionId,nickname,callback){
   this.state = stateCodes.CONNECTING;
 
   this.reset();
@@ -122,9 +121,13 @@ Gameplay.prototype.join = function(sessionId,nickname){
       return this.events.publish('error',new Error('Unsuccessful connection attempt. Server Response:"'+error.message+'"'));
     }
 
+    this.spectator = !response.ok;
+
     this.state = response.players.length>1 ? stateCodes.PLAYING : stateCodes.WAITING_OPPONENT;
     this.session.importServiceResponse(response);
     this.events.publish('connect');
+
+    callback && callback();
 
   }.bind(this));
 }
@@ -197,9 +200,46 @@ Gameplay.prototype.makeMove = function(move){
   }
 };
 
+Gameplay.prototype.pgn = function(options){
+  !options && ( options = {} );
+
+  var white = this.white(),
+      black = this.black(),
+      result = this.result();
+
+  white = white ? white.nickname : '';
+  black = black ? black.nickname : '';
+  
+  options.event = white+' vs '+black;
+  options.site = 'multiplayerchess.com';
+  options.date = prettifyTimestamp(this.session.createTS);
+  options.round = 1;
+  options.white = white;
+  options.black = black;
+  options.result = result && result.san || '*';
+
+  var i = 1;
+  options.movetext = this.session.moves.length == 0 ? '' : this.session.moves.reduce(function(a,b){ 
+    return (typeof a=='string' ? a : '1. '+a.san )+( b.white ? (++i)+'. ' : ' ' )+b.san+' ' 
+  });
+
+  return  ''
+        + '[Event "'+options.event+'"]\n'
+        + '[Site "'+options.site+'"]\n'
+        + '[Date "'+options.date+'"]\n'
+        + '[Round "'+options.round+'"]\n'
+        + '[White "'+options.white+'"]\n'
+        + '[Black "'+options.black+'"]\n'
+        + '[Result "'+options.result+'"]\n'
+        + '\n'
+        + options.movetext
+        
+};
+
 Gameplay.prototype.reset = function(){
   this.abortStream();
   this.state = stateCodes.UNINITIALIZED;
+  this.spectator = undefined;
   this.session.id = undefined;
   this.session.players = [];
   this.session.logs = [];
@@ -208,6 +248,55 @@ Gameplay.prototype.reset = function(){
   this.session.events.publish('leave');
 };
 
+Gameplay.prototype.resign = function(){
+  if(this.session.singleplayer){
+    require('./singleplayer').resign(); 
+    return;
+  }
+
+  var player = this.getSelf(),
+      sessionId = this.session.id;
+  if( player && sessionId ){
+    queryService('POST','session/'+sessionId+'/resign',{ 'spId':player.id },function(error, response){
+      if(response.ok){
+        this.session.importServiceResponse(response);
+      } else {
+        this.events.publish('error', error);
+      }
+    }.bind(this));
+  }
+};
+
+Gameplay.prototype.result = function(){
+
+  if(!this.end()){
+    return undefined;
+  }
+
+  var white = this.white(),
+      black = this.black(),
+      checkmate = this.context.in_checkmate(),
+      draw = this.context.in_draw(),
+      resign = !checkmate && !draw && (white && white.resigned && white) || (black && black.resigned && black),
+      winner = undefined,
+      san = '½-½';
+
+  if(checkmate){
+    winner = this.context.turn() == 'w' && 'b' || 'w';
+    san = winner == 'w' && '1-0' || '0-1';
+  } else if(resign){
+    winner = resign.white && 'b' || 'w';
+    san = ( winner == 'w' && 'Black' || 'White' )+' Resigns';
+  }
+
+  return {
+    'winner':winner,
+    'draw':draw,
+    'checkmate':checkmate,
+    'resign':resign,
+    'san':san
+  }
+}
 
 Gameplay.prototype.start = function(nickname){ 
   this.state = stateCodes.CONNECTING;
@@ -261,7 +350,7 @@ Gameplay.prototype.updatePlayerCount = function(){
 
     this.events.publish('updateServerInfo');
 
-    setTimeout(next, player && 8000 || 3000);
+    setTimeout(next, ( player || this.session.singleplayer ) && 8000 || 3000);
   }.bind(this));
 };
 

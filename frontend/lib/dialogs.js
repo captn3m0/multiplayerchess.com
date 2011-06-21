@@ -8,6 +8,8 @@ var dialogbox = require('./widgets/dialogbox'),
     operateAsync = require('operate_async').operateAsync,
     gameplay = require('./setup').gameplay,
     history = require('./history'),
+    wallpapers = require('wallpapers'),
+    wallpaper = require('widgets/wallpaper'),
     mobile = require('environ').mobile();
 
 var HOURGLASS = '<img src="hourglass.png" width="100" height="130" />';
@@ -62,7 +64,7 @@ var nickname = (function(){
   function prompt(callback){
 
     function close(){
-      callback(get());
+      callback(null, get());
       dialogbox.close();
     }
 
@@ -71,13 +73,9 @@ var nickname = (function(){
         throw error;
       }
       var html = ui.render(template, { 'nickname':get() });
-      dialogbox.open({ 'buttons':[{ 'click':close, 'caption':'OK Now' }], 'symbol':ui.getRandomSymbol(), 'class':'prompt nickname', 'message':html },function(){
+      dialogbox.open({ 'buttons':[{ 'click':close, 'caption':'OK' }], 'symbol':ui.getRandomSymbol(), 'class':'prompt nickname', 'message':html },function(){
         testEl = undefined;
         el = dialogbox.select('#nickname');
-        setTimeout(function(){
-          el.focus();
-        },500);
-
         on(el, 'keydown', check); 
         on(el, 'keyup', check); 
       });
@@ -98,11 +96,6 @@ var nickname = (function(){
       on(el, 'keydown', check); 
       on(el, 'keyup', check); 
 
-      try {
-      !mobile && el.focus();
-      } catch (exc){
-        /* ya idiotic ie8 problem */
-      }
       el.value = el.value;
 
       on(window, 'load', function(){
@@ -125,6 +118,57 @@ var nickname = (function(){
   }
 
 })();
+
+function confirm(msg,callback){
+  dialogbox.open({
+    'symbol':'?',
+    'message':msg,
+    'buttons':[
+      {
+        'caption':'No',
+        'click':navigator.reset
+      },
+      { 
+        'caption':'Yes', 
+        'click':function(){
+          dialogbox.close();
+          callback();
+        }
+      }
+    ]
+  });
+}
+
+function confirmSessionLeave(cb){
+  confirm('Are you sure you want to leave this game?', function(){
+    gameplay.reset();
+    cb();
+  });
+}
+
+function photographers(args){
+  var username = args[0] || undefined;
+  ui.getTemplate('photographers.html', function(error, template){
+    if(error) throw error;
+
+    var ownerlist = [];
+    for(var key in wallpapers.owners){
+      if(!username || wallpapers.owners[key].username == username){
+        ownerlist.push(wallpapers.owners[key]);
+      }
+    }
+
+    var html = ui.render(template, { 'photographers':ownerlist, 'displayAllButton':!!username }),
+        symbol = wallpaper.wallpaper? '<img src="'+wallpaper.wallpaper.sizes.square+'" />' : ui.getRandomSymbol(),
+        buttons =[{ 'caption':'&larr; Back', 'click':navigator.resetDialogs }];
+
+    if(username){
+      buttons.push({ 'caption':'All Photographers', 'link':'#!/photographers' });
+    }
+
+    dialogbox.open({ 'buttons':buttons, 'class':'public intro photographers', 'symbol':symbol, 'message':html });
+  }); 
+}
 
 function prompt(options, callback){
   
@@ -182,7 +226,7 @@ function showAboutDialog(){
       throw error;
     }
     var html = ui.render(template);
-    dialogbox.open({ 'buttons':[{ 'caption':'&larr; Back', 'click':navigator.resetNavigation }], 'class':'public intro about', 'symbol':'&#9822;', 'message':html });
+    dialogbox.open({ 'buttons':[{ 'caption':'&larr; Back', 'click':navigator.resetDialogs }], 'class':'public intro about', 'symbol':'&#9822;', 'message':html });
   });
 }
 
@@ -190,28 +234,11 @@ function showConnectionMsg(){
   dialogbox.open({ 'symbol':HOURGLASS, 'message':'Connecting to the server...' }); 
 }
 
-function showEndMsg(){
-  return showSessionOverview();
-  /*
-  var ctx = gameplay.context,
-      checkmate = ctx.in_checkmate(),
-      draw = !checkmate && ctx.in_draw(),
-      winner = ctx.turn() == 'w' && 'Black' || 'White';
-
-  dialogbox.open({
-    'message':checkmate ? 'Checkmate.'+winner+' wins!' : 'Draw!',
-    'symbol':ui.getRandomSymbol(),
-    'buttons':[
-      { 'caption':'Start New Game', 'click':navigator.navigate.bind(undefined,'') }
-    ]   
-  });*/ 
-}
-
 function showErrorMsg(excinfo){
   dialogbox.open({
     'message':'<h2>An Error Occured</h2>'+excinfo.message,
     'symbol':'!',
-    'buttons':[{ 'caption':'Close', 'click':navigator.resetNavigation }]
+    'buttons':[{ 'caption':'Close', 'click':navigator.reset }]
   });
 }
 
@@ -223,7 +250,7 @@ function showFAQDialog(){
       throw error;
     }
     var html = ui.render(template);
-    dialogbox.open({ 'buttons':[{ 'caption':'&larr; Back', 'click':navigator.resetNavigation },{ 'caption':'About', 'link':'#!/about' }], 'class':'public intro about', 'symbol':'&#9822;', 'message':html });
+    dialogbox.open({ 'buttons':[{ 'caption':'&larr; Back', 'click':navigator.resetDialogs },{ 'caption':'About', 'link':'#!/about' }], 'class':'public intro about', 'symbol':'&#9822;', 'message':html });
   });
 }
 
@@ -246,19 +273,34 @@ function showIntroDialog(){
 
 function showJoinMsg(){
   if(gameplay.session.singleplayer){
-    dialogbox.close();
     return;
   }
-  dialogbox.open({
+
+  var self = gameplay.getSelf();
+
+  var options = {
     'symbol'  : ui.getRandomSymbol(),
-    'buttons' : [{ 'caption':'Ad gloriam!', 'click':dialogbox.close }],
+    'buttons' : [],
     'message' : '' 
               + 'You\'ve joined to'
               + ( gameplay.session.isPrivate ? ' a <strong>private</strong> ' : ' this ' )
-              + 'session as the <strong>'
-              + (gameplay.getSelf().white ?'White':'Black')
-              + '</strong> player.'
-  });
+              + 'game as '
+  };
+
+  if(self){
+    options.buttons.push({ 'caption':'Ad gloriam!', 'click':dialogbox.close });
+    options.message += ''
+                    + 'the <strong>'
+                    + (self.white ?'White':'Black')
+                    + '</strong> player.'
+  } else {
+    options.buttons.push({ 'caption':'Ok', 'click':dialogbox.close },
+                 { 'caption':'Main Menu', 'click':navigator.navigate.bind(undefined,'') });
+    options.message += ''
+                    + ' a <strong>spectator</strong>.';
+  }
+
+  dialogbox.open(options);
 }
 
 function showNewSessionDialog(){
@@ -279,11 +321,11 @@ function showNewPrivateSessionMsg(){
 function showPGN(){
   ui.getTemplate('pgn.html', function(error, template){
     if(error) throw error;
-    var html = ui.render(template,{ 'pgn':gameplay.session.pgn().replace(/\n/g,'<br />') });
+    var html = ui.render(template,{ 'pgn':gameplay.pgn().replace(/\n/g,'<br />') });
 
     dialogbox.open({ 
       'symbol':ui.getRandomSymbol(),
-      'buttons':[{ 'caption':'Close', 'click':navigator.resetNavigation }], 
+      'buttons':[{ 'caption':'Close', 'click':navigator.reset }], 
       'message':html 
     });
   });
@@ -295,23 +337,28 @@ function showSessionOverview(){
     'moves':require('./widgets/moves').render
   };
 
-  var end = gameplay.context.game_over(),
-      white = gameplay.white(),
-      black = gameplay.black();
+  var white = gameplay.white(),
+      black = gameplay.black(),
+      result = gameplay.result();
 
   var windowContent = { 
     'fen':gameplay.context.fen, 
-    'pgn':gameplay.session.pgn().replace(/\n/g,'<br />'),
+    'pgn':gameplay.pgn().replace(/\n/g,'<br />'),
     'white':white && white.nickname,
     'black':black && black.nickname || '?',
-    'ongoing':!end,
-    'endMessage':function(){
-      var checkmate = end && gameplay.context.in_checkmate(),
-          draw = end && gameplay.context.in_draw(),
-          turn = gameplay.context.turn(),
-          winner = checkmate ? ( gameplay.context.turn() == 'w' && 'Black' || 'White' ) : 0;
+    'ongoing':!result,
+    'endMessage':result && function(){
+      if(result.draw){
+        return 'Draw!';
+      }
 
-      return !end ? undefined : ( checkmate ? ('Checkmate. ' + winner + ' won!') : 'Draw' );
+      var winner = result.winner &&  ( result.winner == 'w' && 'White' || 'Black' );
+
+      if(result.checkmate){
+        return winner+' won!';
+      } else if(result.resign){
+        return ( result.resign.white && 'White' || 'Black' ) + ' resigned!';
+      }
     },
     'create_date':function(){
       return ui.prettifyTimestamp(gameplay.session.createTS);
@@ -320,8 +367,8 @@ function showSessionOverview(){
 
   var buttons = [];
 
-  if(!end){
-    buttons.push({ 'caption':'Close', 'click':navigator.resetNavigation });
+  if(!result){
+    buttons.push({ 'caption':'Close', 'click':navigator.reset });
   } else {
     buttons.push({ 
       'caption':'Return To Main Menu', 
@@ -329,7 +376,7 @@ function showSessionOverview(){
     });
     buttons.push({ 
       'caption':'Close', 
-      'click':dialogbox.close
+      'click':navigator.reset
     });
   }
 
@@ -374,9 +421,15 @@ function showOpponentWaitDialog(){
   dialogbox.open(options);
 }
 
-function showStartDialog(){
-  gameplay.state == stateCodes.WAITING_OPPONENT ? showNewSessionDialog() : showJoinMsg();
-}
+var showStartDialog = (function(){
+  var shownSessions = {};
+  return function(){
+    if(!shownSessions[gameplay.session.id]){
+      shownSessions[gameplay.session.id] = true;
+      gameplay.state == stateCodes.WAITING_OPPONENT ? showNewSessionDialog() : showJoinMsg();
+    }
+  }
+})();
 
 function showOpponentJoinMsg(){
   dialogbox.open({ 
@@ -388,30 +441,25 @@ function showOpponentJoinMsg(){
   })
 }
 
-function showOpponentLeaveMsg(){
-  if(!gameplay.session.isPrivate){
-    dialogbox.open({ 'buttons':[{ 'caption':'Find New Opponent', 'link':'#!/sessions/search' },{ 'caption':'Create Private Game', 'link':'#!/sessions/new/private' }], 'message':'The opponent seems to have resigned/disconnected.', 'symbol':HOURGLASS });
-  }
-}
-
 function setup(gpInstance){
   gameplay.session.on('create',showStartDialog);
   gameplay.session.on('join',showStartDialog);
   gameplay.session.on('opponentJoin',showOpponentJoinMsg);
-  gameplay.session.on('opponentLeave',showOpponentLeaveMsg);
-  gameplay.session.on('end', showEndMsg);
+  //gameplay.session.on('end', showSessionOverview);
   gameplay.on('error', showErrorMsg);
 }
 
 module.exports = {
+  'confirm':confirm,
+  'confirmSessionLeave':confirmSessionLeave,
   'nickname':nickname,
+  'photographers':photographers,
   'prompt':prompt,
   'promptPromotion':promptPromotion,
   'setup':setup,
   'showAboutDialog':showAboutDialog,
   'showFAQDialog':showFAQDialog,
   'showConnectionMsg':showConnectionMsg,
-  'showEndMsg':showEndMsg,
   'showErrorMsg':showErrorMsg,
   'showIntroDialog':showIntroDialog,
   'showPGN':showPGN,

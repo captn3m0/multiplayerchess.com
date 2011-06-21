@@ -15,7 +15,8 @@
       "relativedate.json",
       "environ.json",
       "lib.json",
-      "templates.json"
+      "templates.json",
+      "wallpapers.json"
     ]
   }
 }

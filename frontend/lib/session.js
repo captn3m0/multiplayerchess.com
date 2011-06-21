@@ -30,17 +30,6 @@ function Session(){
 
 inherits(Session, Observable);
 
-Session.prototype.player = function(property,value, type){
-  var i,len;
-  if(this.players && this.players.length){
-    for(i = -1, len=this.players.length; ++i < len; ){
-      if( ( !type && this.players[i][property] == value ) || ( type && this.players[i][property] && typeof this.players[i][property] == type ) ){
-        return this.players[i];
-      }
-    };
-  }
-};
-
 Session.prototype.findCaptures = function(){
   var captures = [],
       pieces = this.fen.substring(0,this.fen.indexOf(' ')).replace(/[^a-zA-Z]/g,''),
@@ -73,7 +62,8 @@ Session.prototype.importServiceResponse = function(response){
       start = this.players.length <2 && response.players.length == 2,
       create = this.players.length == 0 && response.players.length == 1,
       join = this.players.length == 0 && response.players.length == 2,
-      opponentJoin = this.players.length == 1 && this.players[0].id && response.players.length == 2;
+      opponentJoin = this.players.length == 1 && this.players[0].id && response.players.length == 2,
+      end = !this.end && doc.end;
 
   this.createTS = doc.create_ts;
   this.end = doc.end;
@@ -107,52 +97,28 @@ Session.prototype.importServiceResponse = function(response){
 
   update && this.events.publish('update');
   create && this.events.publish('create');
+  end && this.events.publish('end');
   join && this.events.publish('join');
   opponentJoin && this.events.publish('opponentJoin');
   start && this.events.publish('start');
 
   var opponentLeave = this.players.length == 2 && !this.gameplay.getOpponent().online;
   if(opponentLeave){ 
-    this.gameplay.state = 2;
     this.events.publish('opponentLeave');
   };
 
   this.events.publish('import');
 };
 
-Session.prototype.pgn = function(options){
-  !options && ( options = {} );
-
-  var white = this.gameplay.white(),
-      black = this.gameplay.black();
-
-  white = white ? white.nickname : '';
-  black = black ? black.nickname : '';
-  
-  options.event = white+' vs '+black;
-  options.site = 'multiplayerchess.com';
-  options.date = prettifyTimestamp(this.createTS);
-  options.round = 1;
-  options.white = white;
-  options.black = black;
-  options.result = this.end && this.moves[this.moves.length-1].san || '*';
-
-  var i = 1;
-  options.movetext = this.moves.length == 0 ? '' : this.moves.reduce(function(a,b){ 
-    return (typeof a=='string' ? a : '1. '+a.san )+( b.white ? (++i)+'. ' : ' ' )+b.san+' ' 
-  });
-
-  return  ''
-        + '[Event "'+options.event+'"]\n'
-        + '[Site "'+options.site+'"]\n'
-        + '[Date "'+options.date+'"]\n'
-        + '[Round "'+options.round+'"]\n'
-        + '[White "'+options.white+'"]\n'
-        + '[Black "'+options.black+'"]\n'
-        + '[Result "'+options.result+'"]\n'
-        + '\n'
-        + options.movetext
-        
+Session.prototype.player = function(property,value, type){
+  var i,len;
+  if(this.players && this.players.length){
+    for(i = -1, len=this.players.length; ++i < len; ){
+      if( ( !type && this.players[i][property] == value ) || ( type && this.players[i][property] && typeof this.players[i][property] == type ) ){
+        return this.players[i];
+      }
+    };
+  }
 };
 
 var pieceVariants = [

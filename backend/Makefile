@@ -10,8 +10,8 @@ make test:
 	curl -X PUT http://multiplayerchess.com/api/session/init -d "{}"
 
 restart:
-	make stop
-	make run
+	$(MAKE) stop
+	$(MAKE) run
 
 stop:
 	echo "[stop]">>logs

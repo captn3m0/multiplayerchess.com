@@ -1,5 +1,20 @@
-all: 
-	cd templates; python build.py>bundle.js cd ../;
+all:
+	make templates;
+	make js;
+
+.PHONY: templates
+templates:
+	cd templates; \
+	python build.py>bundle.js; \
+	cd ../;
+
+.PHONY: wallpapers
+wallpapers:
+	cd wallpapers; \
+	node pack.js > wallpapers.js; \
+	cd ../;
+
+js:
 	jsbuild manifest.json
 
 deploy:

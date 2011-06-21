@@ -62,14 +62,19 @@ function movePiece(eventArgs){
   
   dragndrop.preventEvent(eventArgs);
 
+  if(gameplay.end()){
+    return;
+  }
+
   var target  = eventArgs.target || eventArgs.srcElement,
       isPiece = css.hasClass(target,'piece'),
+      self = gameplay.getSelf(),
       piece, pieceName, ownership, from;
 
   if(isPiece){
     piece = target;
     pieceName = piece.getAttribute('data-name');
-    ownership = (pieceName.toUpperCase()==pieceName) == !!gameplay.getSelf().white;
+    ownership = self && (pieceName.toUpperCase()==pieceName) == !!self.white;
   }
   
   if(!isPiece || !ownership) {

@@ -1,0 +1,29 @@
+<h2>Photographers</h2>
+You see some wallpapers on the background of this website, thanks to the great work of the photographers below.
+
+{{#photographers}}
+<div class="photographer">
+  <h4>
+  <span>
+  {{ realname }} 
+  {{#realname}}-{{/realname}}
+  {{ username }} 
+  </span>
+  </h4>
+  <div class="info">
+    Flickr: <a target="_blank" href="{{ url }}">flickr.com/{{ username }}</a>
+  </div>
+  {{#location}}
+  <div class="info">
+    Location: {{ location }}
+  </div>
+  {{/location}}
+
+  <div class="photos">
+  {{#photos}}
+    <a target="_blank" href="{{ url }}"><img src="{{ square }}" /></a>
+  {{/photos}}
+  </div>
+
+</div>
+{{/photographers}}

@@ -14,6 +14,7 @@ var serverTime = 0;
     setOpponent = setWidgetContent.bind(null,'opponent'),
     setCaptureTable = setWidgetContent.bind(null,'capturetable'),
     setButtonSet = setWidgetContent.bind(null,'buttonset'),
+    setPhotographer = setWidgetContent.bind(null,'photographer'),
     setLogs = setWidgetContent.bind(null,'logs'),
     setMoves = setWidgetContent.bind(null,'moves');
 
@@ -54,7 +55,9 @@ function render(callback){
       return callback(error);
     }
 
-    callback(error,ui.render(template));
+    var options = {};
+
+    callback(error,ui.render(template, options));
 
   });
 }
@@ -170,6 +173,8 @@ function setup(){
   gameplay.on('updateServerInfo', function(){
     setOnlinePlayerCt(gameplay.playerCount);
   });
+
+  setPhotographer();
 }
 
 function setWidgetContent(widgetName,value){
@@ -201,7 +206,7 @@ function updateOpponentStatus(){
       status = undefined,
       lag, sec, min, h;
 
-  if(opponent){
+  if(!gameplay.spectator && opponent){
     lag = Math.abs(self.last_move_ts-opponent.last_move_ts);
     sec = Math.floor(lag/1000);
     min = Math.floor(sec/60);
@@ -219,6 +224,7 @@ function updateOpponentStatus(){
 
 module.exports = {
   'getSize':getSize,
+  'resize':resize,
   'render':render,
   'setButtonSet':setButtonSet,
   'setCaptureTable':setCaptureTable,
@@ -227,6 +233,7 @@ module.exports = {
   'setMoves':setMoves,
   'setOnlinePlayerCt':setOnlinePlayerCt,
   'setOpponent':setOpponent,
+  'setPhotographer':setPhotographer,
   'setup':setup,
   'updateOpponentStatus':updateOpponentStatus
 }

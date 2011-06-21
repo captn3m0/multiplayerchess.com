@@ -4,9 +4,9 @@ var ui = require('../ui'),
 
 var sessionId;
 
-function refresh(){
+function refresh(forceUpdate){
   var visible = gameplay.session.id != undefined;
-  if(visible && sessionId != gameplay.session.id){
+  if(visible && ( forceUpdate || sessionId != gameplay.session.id )){
     sessionId = gameplay.session.id;
     render(function(error, html){
       sidebar.setButtonSet(html);
@@ -16,14 +16,23 @@ function refresh(){
 }
 
 function render(callback){
-  return ui.getTemplate('buttonset.html',function(error,template){
+  var view = { 
+    'sessionId':gameplay.session.id, 
+    'display_commands':!gameplay.spectator && !gameplay.end() && gameplay.session.players.length>1,
+    'multiplayer':!gameplay.session.singleplayer,
+    'leave':gameplay.session.isPrivate || gameplay.session.players.length<2 || gameplay.end()
+  };
+
+  ui.getTemplate('buttonset.html',function(error,template){
     if(error) return callback(error, template);
-    callback(error, ui.render(template,{ 'sessionId':sessionId }));
+    callback(error, ui.render(template,view));
   });
 }
 
 function setup(){
+  gameplay.session.on('start', refresh.bind(undefined,true));
   gameplay.session.on('update', refresh);
+  gameplay.session.on('end', refresh.bind(undefined,true));
 }
 
 function setVisibility(visible){

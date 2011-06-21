@@ -112,11 +112,16 @@ router.register(['PUT','POST'],'^/session/([\\w\-]+)/join/?$', function(request,
     options.spId = session.generateSessionPlayerId();
     session.createSessionPlayer(options, function(error, rec){
       session.attachSessionPlayer(options,function(error, result){
-        if(error){
-          emit(error);
-        } else {
-          session.get(sessionId, emitSession.bind(undefined, emit, options.spId));
-        }
+        session.get(sessionId, function(gError,doc){
+          if(error && gError){
+            emit(error);
+            return;
+          }
+          
+          doc.ok = !error;
+          emitSession(emit, options.spId, undefined, doc);
+
+        });
       });
     });
   }
@@ -128,7 +133,8 @@ router.register(['GET','POST'],'^/session/([\\w\-]+)/listen/opponent/?$', functi
 });
 
 router.register(['POST','PUT'],'^/session/([\\w\-]+)/listen/update/?$', function(request,emit,sessionId){
-  session.listenForUpdate(sessionId,request.body.revision,emitSession.bind(undefined,emit,request.body.spId));
+  console.log('>>',request.body,request.body['revision']);
+  session.listenForUpdate({ 'sessionId':sessionId,'rev':request.body.revision, 'spId':request.body.spId },emitSession.bind(undefined,emit,request.body.spId));
 });
 
 router.register(['POST','PUT'],'^/session/([\\w\-]+)/move/?$', function(request,emit,sessionId){

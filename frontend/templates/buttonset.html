@@ -1,4 +1,14 @@
-<a class="button" href="#!/{{ sessionId }}/pgn">PGN</a>
-<a class="button" href="#!/{{ sessionId }}/overview">Overview</a>
+<a class="button green" href="#!/{{ sessionId }}/pgn">PGN</a>
+<a class="button green" href="#!/{{ sessionId }}/overview">Overview</a>
+
+{{#display_commands}}
+<!--<a class="button red" href="#!/{{ sessionId }}/offer-draw">Offer Draw</a>-->
+<a class="button red" href="#!/{{ sessionId }}/resign">Resign</a>
+{{/display_commands}}
+
+{{#multiplayer}}
 <a class="button" href="#!/{{ sessionId }}/share">Share</a>
+{{/multiplayer}}
+{{#leave}}
 <a class="button" href="#!/{{ sessionId }}/leave">Leave</a>
+{{/leave}}

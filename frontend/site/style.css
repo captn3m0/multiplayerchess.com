@@ -24,7 +24,8 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 
 #intro { margin-top:150px; font:10em sans-serif; color:#fff; text-align:center; width:100%; vertical-align:middle;  }
 
-#bg { z-index:1; position:absolute; top:0; left:0; }
+#bg, #wallpaper { z-index:1; position:absolute; top:0; left:0; }
+#wallpaper { z-index:0; }
 
 .container { visibility:hidden; position:absolute; z-index:2; width:100%; height:100%; margin:auto auto; overflow:hidden; }
 
@@ -51,9 +52,14 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 .sidebar .footer a:hover { color:#aaa; }
 
 .sidebar .buttons { display:none; text-align:center; }
-.sidebar .buttons .button { padding:3px 5px; background:#111; color:#eee; text-decoration:none; outline:none; }
-.sidebar .buttons .button:hover { background:#222; color:#fff; }
+.sidebar .buttons .button { padding:3px 5px; background:#111; border:1px outset #222; color:#eee; text-decoration:none; outline:none; color:#eee; }
+.sidebar .buttons .button.red { background:rgb(20,10,0); border-color:rgb(30,10,0); }
+.sidebar .buttons .button.green { background:rgb(0,20,0); border-color:rgb(0,30,0); }
+.sidebar .buttons .button:hover { background:rgb(200,100,0); border-color:rgb(230,140,0); color:#fff; }
 .playing .sidebar .buttons { display:block; }
+
+.sidebar .photographer label { display:inline; color:#666; }
+.sidebar .photographer .content { display:inline; color:#666; }
 
 .session-info { overflow:hidden; display:none; }
 .playing .session-info { display:block }
@@ -96,8 +102,8 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 .container.vertical .sidebar .session-info .moves ul li { float:left; margin-left:5px; }
 .container.vertical .sidebar .session-info .logs { display:none; float:right; overflow:hidden; padding:0; }
 .container.vertical .sidebar .buttons { float:right; padding:5px 0 5px 3px; }
-.container.vertical .sidebar .buttons .button { display:block; margin:0 3px 3px 0; background:#0c0c0c; }
-.container.vertical .sidebar .buttons .button:hover { background:#111; }
+.container.vertical .sidebar .buttons .button { display:block; margin:0 3px 3px 0; background:#0c0c0c; border-color:#111; }
+.container.vertical .sidebar .buttons .button:hover { background:#111; border-color:#222; }
 .container.vertical .sidebar .buttons .button:active { background:#222; }
 
 .container.micro .sidebar { margin:0 auto; }
@@ -108,7 +114,7 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 .container.micro .sidebar .footer { display:none; }
 .container.micro .sidebar .buttons { float:right; border:0; padding:5px; }
 .container.micro .sidebar .button { background:transparent; color:#ffcc00; }
-.container.micro .sidebar .button:hover { color:#ff3300; }
+.container.micro .sidebar .button:hover { color:#ff3300; border-color:#111; }
 
 .sidebar.wide .date { display:inline; }
 .sidebar.short .date { display:none; }
@@ -122,9 +128,9 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 #dialogbox .content { display:table-cell; vertical-align:top; }
 #dialogbox .content .msg { font-size:0.9em; }
 #dialogbox .content .buttons { padding-top:10px; text-align:right; }
-#dialogbox .content .buttons .button { outline:none; font-size:0.9em; padding:3px 7px; background:#111; color:#fff; text-decoration:none; border-radius:5px; -moz-border-radius:5px; }
-#dialogbox .content .buttons .button:hover { background:#222; }
-#dialogbox .content .buttons .button:active { background:#cc2200; }
+#dialogbox .content .buttons .button { border:1px outset #222; outline:none; font:bold 0.9em arial,sans-serif; letter-spacing:-1px;  padding:3px 10px; background:#111; color:#ccc; text-decoration:none; }
+#dialogbox .content .buttons .button:hover { background:rgb(225,120,0); border-color:rgb(255,150,50); color:#fff; }
+#dialogbox .content .buttons .button:active { background:#cc2200; border-color:#ff4411; }
 #dialogbox .content .msg h2 { font:1.9em 'Goudy Bookletter 1911', serif; margin:0 0 5px 0; }
 
 #dialogbox.intro { pointer-events:none; font-size:1em; }
@@ -144,7 +150,7 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 #dialogbox.intro .buttons { pointer-events:auto; }
 #dialogbox.intro .nickname {  margin:10px 0 0 0; padding:0 color:#eee; background:transparent; color:#fff; border:0; outline:none; font:1em 'Goudy Bookletter 1911', serif;  pointer-events:auto; }
 
-#dialogbox.nickname.prompt .nicknamebox { display:block; background:transparent; color:#fff; border:0; padding:5px; margin:5px 0 0 0; font-size:1.1em; } 
+#dialogbox.nickname.prompt .nicknamebox { display:block; width:250px; background:#080808; color:#fff; border:#111 inset 1px; letter-spacing:1px; font-size:0.7em; padding:5px; margin:5px 0 0 0; font-size:1.1em; } 
 #dialogbox.nickname.prompt .footnote { font-size:0.8em; color:#666; }
 
 #dialogbox.intro .option,  #dialogbox.intro .option span { border-radius:2px; -moz-border-radius:2px; } 
@@ -190,6 +196,21 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 .session-overview .right { float:right; width:65%; }
 
 .session-overview .end-message { font-size:1.2em; margin:10px 0 10px 0; padding:5px 5px; background:rgb(30,5,0); text-align:center; }
+
+.photographer { pointer-events:auto; }
+.photographer h4 { font:normal 1.3em "Droid Serif",serif; color:rgb(255,255,155); margin-bottom:3px; padding-bottom:3px; }
+.photographer h4 span { background:rgb(15,5,10); padding:5px 3px; } 
+.photographer .info { padding-bottom:5px; font-size:0.8em; color:#ccc; }
+.photographer .info a { color:rgb(255,235,155); text-decoration:none; }
+.photographer .info a:hover { color:rgb(255,225,200); text-decoration:underline; }
+
+.hor-flip {
+  -moz-transform: scale(-1, 1);
+  -webkit-transform: scale(-1, 1);
+  -o-transform: scale(-1, 1);
+  transform: scale(-1, 1);
+  filter: FlipH;
+}
 
 .testbox { position:absolute; top:-99999px; left:-999999px; }
 

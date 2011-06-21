@@ -23,6 +23,17 @@ function ljust(str,width,fillchar){
   return str;
 }
 
+function loadImage(url,callback){
+  var img = new Image();
+  img.onload = function(){
+    callback(null, img);
+  };
+  img.onerror = function(){
+    callback(new Error('Couldn\'t load image at "'+url+'"'));
+  }
+  img.src = url;
+}
+
 function queryFragment(fragment,selector/*,all*/){
   /*
   return !selector ? fragment : fragment['querySelector'+(all&&'All'||'')](selector);
@@ -53,6 +64,19 @@ function render(template, view, partials){
   return mustache.to_html(template, view, partials);
 }
 
+function scaleSize(x1,y1,x2,y2){
+  var horLack = x2-x1,
+      verLack = y2-y1;
+
+  var horScale = Math.max(horLack,verLack) == horLack,
+      verScale = !horScale;
+
+  return {
+    'width':x1 + ( horScale ? horLack : x1/(y1/verLack) ),
+    'height':y1 + ( verScale ? verLack : y1/(x1/horLack) )
+  };
+}
+
 function setup(){
   module.exports.select = queryFragment.bind(null, document.getElementById('mpc'));
 }
@@ -71,10 +95,12 @@ module.exports = {
   'fileCaptions':fileCaptions,
   'getRandomSymbol':getRandomSymbol,
   'getTemplate':getTemplate,
+  'loadImage':loadImage,
   'ljust':ljust,
   'parseHtml':parseHtml,
   'prettifyTimestamp':prettifyTimestamp,
   'queryFragment':queryFragment,
   'render':render,
+  'scaleSize':scaleSize,
   'setup':setup
 }

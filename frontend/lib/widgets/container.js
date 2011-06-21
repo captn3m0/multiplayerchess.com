@@ -15,6 +15,7 @@ var select = null,
 
 function getChildren(){
   return [
+    { 'name':'wallpaper', 'module':require('./wallpaper') },
     { 'name':'bg', 'module':require('./bg') },
     { 'name':'board', 'module':require('./board') },
     { 'name':'sidebar', 'module':require('./sidebar') }
