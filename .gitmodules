@@ -12,4 +12,7 @@
 	url = git://github.com/azer/relative-date.git
 [submodule "frontend/deps/environ"]
 	path = frontend/deps/environ
-	url = git://github.com/azer/environ.git
+	url = https://github.com/azer/environ.git
+[submodule "deps/environ"]
+	path = deps/environ
+	url = https://github.com/azer/environ.git
