@@ -65,6 +65,8 @@ function resetDialogs(){
 
   if(gameplay.session.id && gameplay.state == 2){
     dialogs.showStartDialog();
+  } else if(gameplay.session.id && gameplay.state == 3){
+    navigate(gameplay.session.id); 
   } else if(gameplay.session.id && gameplay.state == 4){
     navigate(gameplay.session.id+'/overview'); 
   } else {
