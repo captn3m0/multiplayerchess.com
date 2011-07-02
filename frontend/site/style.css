@@ -129,8 +129,8 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 #dialogbox .content .msg { font-size:0.9em; }
 #dialogbox .content .buttons { padding-top:10px; text-align:right; }
 #dialogbox .content .buttons .button { border:1px outset #222; outline:none; font:bold 0.9em arial,sans-serif; letter-spacing:-1px;  padding:3px 10px; background:#111; color:#ccc; text-decoration:none; }
-#dialogbox .content .buttons .button:hover { background:rgb(225,120,0); border-color:rgb(255,150,50); color:#fff; }
 #dialogbox .content .buttons .button:active { background:#cc2200; border-color:#ff4411; }
+#dialogbox .content .buttons .button:hover { background:rgb(225,120,0); border-color:rgb(255,150,50); color:#fff; }
 #dialogbox .content .msg h2 { font:1.9em 'Goudy Bookletter 1911', serif; margin:0 0 5px 0; }
 
 #dialogbox.intro { pointer-events:none; font-size:1em; }
@@ -147,7 +147,13 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 #dialogbox.intro .option:active span { border-color:#000201; }
 #dialogbox.intro .option:active { background:#000804; border-color:#001105; }
 #dialogbox.intro .option:hover h3 label { color:#251400; }
-#dialogbox.intro .buttons { pointer-events:auto; }
+#dialogbox.intro .buttons { margin-top:5px; border-top:1px solid #111; pointer-events:auto; }
+#dialogbox.intro .buttons .button { font:bold 0.8em Arial,sans-serif; background:transparent; border:none; color:#fff; letter-spacing:0; }
+#dialogbox.intro .buttons .button:hover { background:rgb(15,5,10); border:none; }
+#dialogbox.intro .buttons .social { font-weight:normal; padding:3px 5px; background:transparent; border:none; letter-spacing:0; color:#aaa; }
+#dialogbox.intro .buttons .social:hover { background:transparent; color:#fe6; }
+#dialogbox.intro .buttons .chrome,
+#dialogbox.intro .buttons .chrome:hover { border-right:1px solid #111; padding-right:10px; }
 #dialogbox.intro .nickname {  margin:10px 0 0 0; padding:0 color:#eee; background:transparent; color:#fff; border:0; outline:none; font:1em 'Goudy Bookletter 1911', serif;  pointer-events:auto; }
 
 #dialogbox.nickname.prompt .nicknamebox { display:block; width:250px; background:#080808; color:#fff; border:#111 inset 1px; letter-spacing:1px; font-size:0.7em; padding:5px; margin:5px 0 0 0; font-size:1.1em; } 
@@ -197,6 +203,7 @@ html, body, #mpc { width:100%; height:100%; margin:0; padding:0; background:#000
 
 .session-overview .end-message { font-size:1.2em; margin:10px 0 10px 0; padding:5px 5px; background:rgb(30,5,0); text-align:center; }
 
+.dialogbox.photographers .msg { height:400px; overflow-y:scroll; }
 .photographer { pointer-events:auto; }
 .photographer h4 { font:normal 1.3em "Droid Serif",serif; color:rgb(255,255,155); margin-bottom:3px; padding-bottom:3px; }
 .photographer h4 span { background:rgb(15,5,10); padding:5px 3px; } 
