@@ -350,7 +350,7 @@ Gameplay.prototype.updatePlayerCount = function(){
 
     this.events.publish('updateServerInfo');
 
-    setTimeout(next, ( player || this.session.singleplayer ) && 8000 || 3000);
+    setTimeout(next, ( player || this.session.singleplayer ) && 6000 || 3000);
   }.bind(this));
 };
 
