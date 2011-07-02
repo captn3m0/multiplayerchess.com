@@ -68,7 +68,7 @@ function scaleSize(x1,y1,x2,y2){
   var horLack = x2-x1,
       verLack = y2-y1;
 
-  var horScale = Math.max(horLack,verLack) == horLack,
+  var horScale = verLack<y1/(x1/horLack),
       verScale = !horScale;
 
   return {
