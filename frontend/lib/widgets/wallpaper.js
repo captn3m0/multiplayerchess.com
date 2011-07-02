@@ -108,7 +108,7 @@ function resize(width,height){
 }
 
 function updateSidebarWidget(){
-  sidebar.setPhotographer(gameplay.session.id || !exports.wallpaper ? '' : '<a href="#!/photographers/'+exports.wallpaper.photographer.username+'">'+exports.wallpaper.photographer.username+'</a>');
+  sidebar.setPhotographer(gameplay.session.id || !exports.wallpaper ? '' : '<a href="#!/photographers/'+encodeURI(exports.wallpaper.photographer.username)+'">'+exports.wallpaper.photographer.username+'</a>');
 }
 
 module.exports = {
