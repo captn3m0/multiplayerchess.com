@@ -10,7 +10,7 @@ var dialogbox = require('./widgets/dialogbox'),
     history = require('./history'),
     wallpapers = require('wallpapers'),
     wallpaper = require('widgets/wallpaper'),
-    mobile = require('environ').mobile();
+    chrome = require('environ').chrome();
 
 var HOURGLASS = '<img src="hourglass.png" width="100" height="130" />';
 
@@ -147,7 +147,7 @@ function confirmSessionLeave(cb){
 }
 
 function photographers(args){
-  var username = args[0] || undefined;
+  var username = args[0] && decodeURI(args[0]) || undefined;
   ui.getTemplate('photographers.html', function(error, template){
     if(error) throw error;
 
@@ -256,6 +256,15 @@ function showFAQDialog(){
 
 function showIntroDialog(){
   var symbol = '&#9822;';
+  var buttons = [
+    { 'target':'_blank', 'link':'http://facebook.com/multiplayerchess', 'caption':'Facebook', 'class':'social' },
+    { 'target':'_blank', 'link':'https://chrome.google.com/webstore/detail/ckjffnjacjdmdmpemmnplcgngbdgfmpc', 'caption':'Chrome WebStore', 'class':'social chrome' },
+    { 'link':'#!/about', 'caption':'About' },
+    { 'link':'#!/faq', 'caption':'FAQ' }
+  ];
+
+  if(chrome){
+  }
 
   ui.getTemplate('news.html', function(newsError, news){
     if(newsError) throw newsError;
@@ -263,7 +272,7 @@ function showIntroDialog(){
     ui.getTemplate('intro.html', function(error, template){
       if(error) throw error;
       var html = ui.render(template, { 'nickname':nickname.get() }, { 'news':news });
-      dialogbox.open({ 'buttons':[{ 'link':'#!/about', 'caption':'About' },{ 'link':'#!/faq', 'caption':'FAQ' }], 'class':'public intro', 'symbol':'&#9822;', 'message':html },function(){
+      dialogbox.open({ 'buttons':buttons, 'class':'public intro', 'symbol':'&#9822;', 'message':html },function(){
         nickname.setup(dialogbox.select('#nickname'),dialogbox.select('#nickname-testbox'));
       });
     });
@@ -315,6 +324,13 @@ function showNewPrivateSessionMsg(){
               + 'You\'ve created a new private session and joined it as the <strong>'
               + (gameplay.getSelf().white ?'White':'Black')
               + '</strong> player. '
+              + '<p>Share the URL below with somebody to play against:</p>'
+              + '<input class="urlbox" value="'
+              +config.APPLICATION_URL
+              +
+              '/#!/'
+              +gameplay.session.id
+              +'" />'
   });
 }
 
