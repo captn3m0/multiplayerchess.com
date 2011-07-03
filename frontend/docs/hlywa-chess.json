@@ -1,9 +1,0 @@
-{
-  "name":"hlywa-chess",
-  "build":{
-    "dir":"../deps/hlywa-chess",
-    "files":[
-      "chess.js"
-    ]
-  }
-}

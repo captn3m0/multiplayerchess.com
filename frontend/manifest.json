@@ -8,7 +8,7 @@
     "files":[
       "deps.json",
       "toledo-chess.json",
-      "hlywa-chess.json",
+      "jhlywa-chess.json",
       "mustache.json",
       "functools.json",
       "observer.json",

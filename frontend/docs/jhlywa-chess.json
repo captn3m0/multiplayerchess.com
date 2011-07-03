@@ -1,0 +1,9 @@
+{
+  "name":"jhlywa-chess",
+  "build":{
+    "dir":"../deps/jhlywa-chess",
+    "files":[
+      "chess.js"
+    ]
+  }
+}

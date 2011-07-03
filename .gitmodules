@@ -16,3 +16,9 @@
 [submodule "deps/environ"]
 	path = deps/environ
 	url = https://github.com/azer/environ.git
+[submodule "frontend/deps/jhlywa-chess"]
+	path = frontend/deps/jhlywa-chess
+	url = https://github.com/jhlywa/chess.js.git
+[submodule "frontend/deps/toledo-chess"]
+	path = frontend/deps/toledo-chess
+	url = git@github.com:azer/toledo-chess.git
