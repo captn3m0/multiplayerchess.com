@@ -44,7 +44,7 @@ Gameplay.prototype.black = function(){
 };
 
 Gameplay.prototype.checkGameState = function(){
-  if(this.session.offline && this.end()){
+  if(this.end()){
     this.state = stateCodes.END;
     this.session.events.publish('end');
   }
