@@ -60,7 +60,7 @@ function play(){
 
   (function(i){
     
-    if(!playing || !moves[i] || i>=moves.length-1){
+    if(!playing || !moves[i] || i>=moves.length-1 || !gameplay.session.id){
       stop();
       return;
     } else if(paused){
