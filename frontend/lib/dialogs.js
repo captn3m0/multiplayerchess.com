@@ -391,6 +391,10 @@ function showSessionOverview(){
       'click':navigator.navigate.bind(undefined,'') 
     });
     buttons.push({ 
+      'caption':'Replay', 
+      'link':'#!/'+gameplay.session.id+'/replay'
+    });
+    buttons.push({ 
       'caption':'Close', 
       'click':navigator.reset
     });
@@ -461,7 +465,6 @@ function setup(gpInstance){
   gameplay.session.on('create',showStartDialog);
   gameplay.session.on('join',showStartDialog);
   gameplay.session.on('opponentJoin',showOpponentJoinMsg);
-  //gameplay.session.on('end', showSessionOverview);
   gameplay.on('error', showErrorMsg);
 }
 

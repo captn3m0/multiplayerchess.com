@@ -56,7 +56,6 @@ function render(callback){
     }
 
     var options = {};
-
     callback(error,ui.render(template, options));
 
   });
@@ -206,11 +205,7 @@ function updateOpponentStatus(){
       status = undefined,
       lag, sec, min, h;
 
-  if(!gameplay.spectator && opponent){
-    lag = Math.abs(self.last_move_ts-opponent.last_move_ts);
-    sec = Math.floor(lag/1000);
-    min = Math.floor(sec/60);
-    h = Math.floor(min/60);
+  if(self && opponent){
     status = '<span class="'+(opponent.online&&'green'||'red')+'">'
            + opponent.nickname
            + ' ('

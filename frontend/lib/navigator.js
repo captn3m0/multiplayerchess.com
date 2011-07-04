@@ -5,6 +5,7 @@ var gameplay = require('./setup').gameplay,
     ui = require('./ui'),
     singleplayer = require('./singleplayer'),
     getSessions = require('./history').getSessions,
+    replay = require('replay'),
     dialogs;
 
 function createPrivateSession(){
@@ -129,6 +130,8 @@ function setup(){
     '^(\\w+)/pgn/?$':sessionSubNavWrapper(dialogs.showPGN),
     '^(\\w+)/resign/?$':sessionSubNavWrapper(resign),
     '^(\\w+)/overview/?$':sessionSubNavWrapper(dialogs.showSessionOverview),
+    '^(\\w+)/replay/?$':sessionSubNavWrapper(replay.navigate),
+    '^(\\w+)/replay/(pause|stop)/?$':sessionSubNavWrapper(replay.navigate),
     '^(\\w+)/?$':testSessionParamChange(joinSession),
     '^$':intro
   });

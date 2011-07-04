@@ -2,6 +2,7 @@ var EventBroker = require('observer').EventBroker,
     ui = require('../ui'),
     operateAsync = require('operate_async').operateAsync,
     gameplay = require('../setup').gameplay,
+    replay = require('../replay'),
     on = require('dom').on,
     css = require('css');
 
@@ -110,7 +111,9 @@ function orient(cls){
 function updateClass(){
   select().className  = 'container'
                       + ( orientation != undefined ? ' '+orientation : '' )
-                      + ( gameplay.session.id ? ' playing' : '' );
+                      + ( gameplay.session.id ? ' playing' : '' )
+                      + ( replay.playing() ? ' replay' : '' )
+                      + ( replay.paused() ? ' replay-paused' : '');
 }
 
 function resize(){
@@ -144,5 +147,6 @@ module.exports = {
   'render':render,
   'resize':resize,
   'orient':orient,
+  'updateClass':updateClass,
   'setup':setup
 }

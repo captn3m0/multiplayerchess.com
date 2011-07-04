@@ -7,9 +7,19 @@ var EventBroker = require('observer').EventBroker,
     container = require('./container'),
     promptPromotion = require('../dialogs').promptPromotion,
     dragndrop = require('../dragndrop'),
+    replay = require('../replay'),
     on = require('dom').on;
 
 var select = null;
+
+function cleanLastMoveHighlight(){
+  var last = gameplay.session.lastMove();
+
+  if(last/* && last.white!=self.white*/){
+    css.removeClass( selectSquare(last.from), 'lastmove-from');
+    css.removeClass( selectSquare(last.to), 'lastmove-to');
+  }
+}
 
 function exists(square){
   return gameplay.context.get(square)&&true||false;
@@ -27,8 +37,7 @@ function getSquareName(square){
 function getSquares(){
   var ranks   = [],
       player = gameplay && gameplay.getSelf(),
-      reverse = player && player.black,
-      chess = gameplay.context;
+      reverse = player && player.black;
 
   var rank, caption;
   for(var r = reverse && -1 || 8; (!reverse && --r>-1) || ( reverse && ++r<8 );){
@@ -43,16 +52,9 @@ function getSquares(){
   return ranks;
 }
 
-function highlightLastOpponentMove(){
-  var self = gameplay.getSelf(),
-      last = gameplay.session.moves[  gameplay.session.moves.length - 1 ],
-      from, to, el;
-
-  last && !last.from && ( last = gameplay.session.moves[ gameplay.session.moves.length - 2 ] );
-
-  if(last/* && last.white!=self.white*/){
-    from = last.from;
-    to = last.to;
+function highlightLastMove(){
+  var last = gameplay.session.lastMove();
+  if(last){
     css.addClass( selectSquare(last.from), 'lastmove-from');
     css.addClass( selectSquare(last.to), 'lastmove-to');
   }
@@ -77,10 +79,9 @@ function movePiece(eventArgs){
     ownership = self && (pieceName.toUpperCase()==pieceName) == !!self.white;
   }
   
-  if(!isPiece || !ownership) {
+  if(!isPiece || !ownership || replay.playing()) {
     return;
   }
-
 
   from = getSquareName(piece.parentNode);
   dragndrop.drag(target, function(eventArgs){
@@ -132,7 +133,7 @@ function refresh(){
     module.exports.events.publish('refresh',containerEl);
   });
 
-  highlightLastOpponentMove();
+  highlightLastMove();
 }
 
 function render(callback){
@@ -187,8 +188,10 @@ function setup(){
 }
 
 module.exports = {
+  'cleanLastMoveHighlight':cleanLastMoveHighlight,
   'exists':exists,
   'getSquares':getSquares,
+  'highlightLastMove':highlightLastMove,
   'render':render,
   'refresh':refresh,
   'setup':setup

@@ -44,7 +44,7 @@ Gameplay.prototype.black = function(){
 };
 
 Gameplay.prototype.checkGameState = function(){
-  if(this.session.singleplayer && this.end()){
+  if(this.session.offline && this.end()){
     this.state = stateCodes.END;
     this.session.events.publish('end');
   }
@@ -53,7 +53,7 @@ Gameplay.prototype.checkGameState = function(){
 Gameplay.prototype.checkRevisionUpdate = function(){
   var turn, player; 
 
-  if(this.state == stateCodes.PLAYING && !this.session.singleplayer){
+  if(this.state == stateCodes.PLAYING && !this.session.offline){
     turn = this.context.turn() == 'w' && 'white' || 'black';
     player = this.getSelf();
 
@@ -245,6 +245,8 @@ Gameplay.prototype.reset = function(){
   this.session.logs = [];
   this.session.moves = [];
   this.session.singleplayer = undefined;
+  this.session.offline = undefined;
+
   this.session.events.publish('leave');
 };
 
@@ -334,7 +336,7 @@ Gameplay.prototype.testPieceOwnership = function(square){
 
 Gameplay.prototype.updatePlayerCount = function(){
   var end = this.end(),
-      player = !end && !this.session.singleplayer && this.getSelf(),
+      player = !end && !this.session.offline && this.getSelf(),
       method = player && 'POST' || 'GET';
       options = player && { 'spId':player.id } || null,
       next = arguments.callee.bind(this);
@@ -350,7 +352,7 @@ Gameplay.prototype.updatePlayerCount = function(){
 
     this.events.publish('updateServerInfo');
 
-    setTimeout(next, ( player || this.session.singleplayer ) && 6000 || 3000);
+    setTimeout(next, ( player || this.session.offline ) && 6000 || 3000);
   }.bind(this));
 };
 

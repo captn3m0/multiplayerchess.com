@@ -17,6 +17,7 @@ function document(){
     'document' : {
       '_id':'singleplayer',
       'singleplayer':true,
+      'offline':true,
       'create_ts':now,
       'end':false,
       'fen':'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
@@ -65,6 +66,8 @@ function listen(move){
     gameplay.session.fen = gameplay.context.fen();
     gameplay.session.captures = gameplay.session.findCaptures();
     gameplay.session.events.publish('update');
+
+    gameplay.session.moves.length == 2 && gameplay.session.events.publish('start');
   });
 
 }

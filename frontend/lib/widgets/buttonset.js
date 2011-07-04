@@ -20,7 +20,8 @@ function render(callback){
     'sessionId':gameplay.session.id, 
     'display_commands':!gameplay.spectator && !gameplay.end() && gameplay.session.players.length>1,
     'multiplayer':!gameplay.session.singleplayer,
-    'leave':gameplay.session.isPrivate || gameplay.session.players.length<2 || gameplay.end()
+    'leave':gameplay.session.isPrivate || gameplay.session.players.length<2 || gameplay.end(),
+    'replay':gameplay.session.moves.length
   };
 
   ui.getTemplate('buttonset.html',function(error,template){

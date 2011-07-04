@@ -59,11 +59,11 @@ Session.prototype.findCaptures = function(){
 Session.prototype.importServiceResponse = function(response){
   var doc = response.document,
       update = this.fen != doc.fen || this.players.length != response.players.length,
-      start = this.players.length <2 && response.players.length == 2,
       create = this.players.length == 0 && response.players.length == 1,
       join = this.players.length == 0 && response.players.length == 2,
       opponentJoin = this.players.length == 1 && this.players[0].id && response.players.length == 2,
-      end = !this.end && doc.end;
+      end = !this.end && doc.end,
+      start;
 
   this.createTS = doc.create_ts;
   this.end = doc.end;
@@ -78,6 +78,7 @@ Session.prototype.importServiceResponse = function(response){
   this.moves = [];
   
   this.singleplayer = doc.singleplayer;
+  this.offline = doc.offline;
 
   var i, len, log, lastMoveLog;
   for(i = -1, len=doc.logs.length; ++i < len; ){
@@ -100,6 +101,8 @@ Session.prototype.importServiceResponse = function(response){
   end && this.events.publish('end');
   join && this.events.publish('join');
   opponentJoin && this.events.publish('opponentJoin');
+
+  start = response.players.length == 2 && this.moves.length>0;
   start && this.events.publish('start');
 
   var opponentLeave = this.players.length == 2 && !this.gameplay.getOpponent().online;
@@ -109,6 +112,14 @@ Session.prototype.importServiceResponse = function(response){
 
   this.events.publish('import');
 };
+
+Session.prototype.lastMove = function lastMove(){
+  var self = this.gameplay.getSelf(),
+      last = this.moves[  this.moves.length - 1 ];
+
+  last && !last.from && ( last = this.moves[ this.moves.length - 2 ] );
+  return last;
+}
 
 Session.prototype.player = function(property,value, type){
   var i,len;

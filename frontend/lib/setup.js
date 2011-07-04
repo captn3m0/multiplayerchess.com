@@ -11,9 +11,10 @@ var setup = mpc.setup = module.exports = function setup(){
       container = require('./widgets/container'),
       dialogs   = require('./dialogs'),
       history   = require('./history'),
-      titlebar  = require('./widgets/titlebar');
+      titlebar  = require('./widgets/titlebar'),
+      replay    = require('./replay');
 
-      toSetup = [container,dialogbox,dialogs,history,navigator,titlebar];
+      toSetup = [container,dialogbox,dialogs,history,titlebar,replay,navigator];
 
   render(function(error, html){
     if(error){

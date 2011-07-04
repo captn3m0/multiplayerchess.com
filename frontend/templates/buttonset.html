@@ -1,14 +1,28 @@
-<a class="button green" href="#!/{{ sessionId }}/pgn">PGN</a>
-<a class="button green" href="#!/{{ sessionId }}/overview">Overview</a>
+<div class="gameplay-buttons">
+  <a class="button green" href="#!/{{ sessionId }}/pgn">PGN</a>
+  <a class="button green" href="#!/{{ sessionId }}/overview">Overview</a>
+  {{#replay}}
+  <a class="button blue replay" href="#!/{{ sessionId }}/replay">Replay</a>
+  {{/replay}}
 
-{{#display_commands}}
-<!--<a class="button red" href="#!/{{ sessionId }}/offer-draw">Offer Draw</a>-->
-<a class="button red" href="#!/{{ sessionId }}/resign">Resign</a>
-{{/display_commands}}
+  {{#display_commands}}
+  <!--<a class="button red" href="#!/{{ sessionId }}/offer-draw">Offer Draw</a>-->
+  <a class="button red" href="#!/{{ sessionId }}/resign">Resign</a>
+  {{/display_commands}}
 
-{{#multiplayer}}
-<a class="button" href="#!/{{ sessionId }}/share">Share</a>
-{{/multiplayer}}
-{{#leave}}
-<a class="button" href="#!/{{ sessionId }}/leave">Leave</a>
-{{/leave}}
+  {{#multiplayer}}
+  <a class="button" href="#!/{{ sessionId }}/share">Share</a>
+  {{/multiplayer}}
+  {{#leave}}
+  <a class="button" href="#!/{{ sessionId }}/leave">Leave</a>
+  {{/leave}}
+</div>
+
+<div class="replay-title">
+  <span>&#9658; Replay-Mode</span>
+</div>
+<div class="replay-buttons">
+  <a class="button green replay" href="#!/{{ sessionId }}/replay">Replay</a>
+  <a class="button blue pause" href="#!/{{ sessionId }}/replay/pause">Pause</a>
+  <a class="button red stop" href="#!/{{ sessionId }}/replay/stop">Stop</a>
+</div>
