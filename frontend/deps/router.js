@@ -13,7 +13,7 @@ function getUrlMap(){
 function listen(){
   var url = getUrl();
   testChange(url) && route(url);
-  setTimeout(listen,1000); 
+  setTimeout(listen,500); 
 }
 
 function route(url){
