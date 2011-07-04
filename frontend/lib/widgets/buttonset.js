@@ -16,6 +16,7 @@ function refresh(forceUpdate){
 }
 
 function render(callback){
+  console.log('render sidebar',gameplay.end());
   var view = { 
     'sessionId':gameplay.session.id, 
     'display_commands':!gameplay.spectator && !gameplay.end() && gameplay.session.players.length>1,
