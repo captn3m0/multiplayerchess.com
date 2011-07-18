@@ -141,7 +141,9 @@ function setup(){
   gameplay.session.on('create', testSessionParamChange(updateSessionParam));
   gameplay.session.on('join', testSessionParamChange(updateSessionParam));
   gameplay.session.on('end', function(){
-    navigate(gameplay.session.id+'/overview');
+    setTimeout(function(){
+      !replay.playing() && navigate(gameplay.session.id+'/overview');
+    },1500);
   });
 }
 
