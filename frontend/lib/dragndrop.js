@@ -11,7 +11,6 @@ function clientCoords(eventArgs){
 }
 
 function drag(el,fn){
-  document.title  += 'DRAG:'
   callback = fn;
   select(el);
   it = 0;
