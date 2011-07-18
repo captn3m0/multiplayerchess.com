@@ -17,11 +17,10 @@ function setup(){
 
 function navigate(args){
   var subcommand = args[1];
-  if(subcommand && playing){
+
+  if(subcommand){
+    dialogbox.close();
     module.exports[subcommand]();
-    return;
-  } else if(subcommand){
-    navigator.resetDialogs();
     return;
   }
 
@@ -30,8 +29,11 @@ function navigate(args){
 }
 
 function pause(){
-  if(!playing || paused){
+  if(paused){
     return;
+  }
+  if(!playing){
+    play();
   }
   paused = true;
   updateContainerClass();
@@ -61,7 +63,7 @@ function play(){
   (function(i){
     
     if(!playing || !moves[i] || i>=moves.length-1 || !gameplay.session.id){
-      stop();
+      setTimeout(stop,1500);
       return;
     } else if(paused){
       return;
@@ -84,7 +86,7 @@ function stop(){
   paused = false;
   index = 0;
 
-  gameplay.context.load(gameplayFen);
+  gameplayFen && gameplay.context.load(gameplayFen);
   board.refresh();
   board.highlightLastMove();
   updateContainerClass();
