@@ -14,6 +14,10 @@ wallpapers:
 	node pack.js > wallpapers.js; \
 	cd ../;
 
+warn:
+	grep "console.log" * -rn --color
+	grep "document.title" * -rn --color
+
 js:
 	jsbuild manifest.json
 
