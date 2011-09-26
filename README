@@ -3,23 +3,25 @@ contribute, to file bugs or feature requests at the issue tracker.
 
 First Steps
 ===========
-$ mplayer http://tayfabandista.org/player/haydi_barikata.mp3 &
-$ git clone https://github.com/azer/multiplayerchess.com.git
-$ cd multiplayerchess.com/db
-$ ./bootstrap.sh
-$ cd ../backend
-$ vim config.js
-$ make run
-$ cd ../frontend
-$ vim lib/config.js
-$ make
+    mplayer http://tayfabandista.org/player/haydi_barikata.mp3 &
+    git clone https://github.com/azer/multiplayerchess.com.git
+    cd multiplayerchess.com/db
+    vim Makefile #Edit the username/password for couchdb
+    make
+    cd ../backend
+    vim config.js
+    make run
+    cd ../frontend
+    vim lib/config.js
+    make
 
 Dependencies
 ============
-Node, CouchDB
-JSBuild (http://jsbuild.kodfabrik.com)
-base64 (https://github.com/brainfucker/node-base64)
-chess.js (https://github.com/jhlywa/chess.js.git)
+- [Node](http://nodejs.org)
+- [CouchDB](http://couchdb.apache.org/)
+- [JSBuild](http://jsbuild.kodfabrik.com)
+- [base64](https://github.com/brainfucker/node-base64)
+- [chess.js](https://github.com/jhlywa/chess.js.git)
 
 License
 =======
